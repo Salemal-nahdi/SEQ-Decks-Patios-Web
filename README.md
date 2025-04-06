@@ -1,26 +1,34 @@
 # SEQ Decks & Patios Website
 
-A simple, responsive website for SEQ Decks & Patios, a deck and patio building business serving South East Queensland, Australia.
+A simple, responsive single-page website for SEQ Decks & Patios, a deck and patio building business serving South East Queensland, Australia.
 
 ## Website Overview
 
-This website includes:
-- Home page with company introduction and featured projects
-- About Us page with company information and team profiles
-- Services page detailing the services offered
-- Gallery page showcasing completed projects
-- Contact page with a form and company information
+This single-page website includes:
+- Home/hero section with eye-catching image and call-to-action
+- About section with company information
+- Services section showcasing deck and patio offerings
+- Project process explanation
+- Gallery of completed projects
+- Contact form for inquiries
+- Mobile-responsive design
 
 ## Technical Details
 
-This is a simple HTML and CSS website with minimal JavaScript for interactive elements. It features:
-- Responsive design for all device sizes
-- Mobile-friendly navigation
-- Custom color scheme based on the company's branding
-- Image gallery with filtering functionality
-- Contact form (requires backend implementation for actual form submission)
+This is a simple HTML, CSS, and JavaScript website with:
+- Responsive design for all device sizes using CSS Grid and Flexbox
+- Mobile-friendly navigation with hamburger menu
+- Smooth scrolling to page sections
+- Image hover effects
+- Contact form (requires backend implementation)
 
-## Deployment Instructions
+## Setup Instructions
+
+### Local Development
+
+1. Clone this repository to your local machine
+2. Open the index.html file in your browser to view the site
+3. Edit the HTML and CSS files as needed
 
 ### GitHub Repository Setup
 
@@ -46,20 +54,11 @@ This is a simple HTML and CSS website with minimal JavaScript for interactive el
 ## Customization
 
 To customize the website:
-- Replace placeholder images with actual company photos
-- Update contact information with real company details
-- Add real team member information and images
-- Modify color scheme in the CSS variables (in styles.css)
-- Add or remove services as needed
-
-## Future Enhancements
-
-Potential enhancements for the future:
-- Backend implementation for the contact form
-- Blog section for company news and project highlights
-- Customer testimonials section
-- Before/after project sliders
-- Integration with social media feeds
+- Replace placeholder text with real company information
+- Update contact details
+- Add actual testimonials and team information
+- Modify colors in the CSS variables (in `styles.css`)
+- Replace images with high-quality company photos
 
 ## License
 
