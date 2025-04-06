@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services | SEQ Decks & Patios</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('488906547_17999939375779643_5741278831892348083_n.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .service-section {
+            padding: 80px 0;
+        }
+        
+        .service-section:nth-child(even) {
+            background-color: var(--light);
+        }
+        
+        .service-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+        
+        .service-content:nth-child(even) .service-image {
+            order: 2;
+        }
+        
+        .service-content:nth-child(even) .service-text {
+            order: 1;
+        }
+        
+        .service-image img {
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        
+        .service-text h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .service-text p {
+            margin-bottom: 20px;
+        }
+        
+        .service-features {
+            margin-top: 20px;
+        }
+        
+        .service-feature {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .service-feature i {
+            color: var(--primary);
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        
+        .process-section {
+            padding: 80px 0;
+            background-color: var(--white);
+        }
+        
+        .process-section h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 36px;
+            color: var(--dark);
+        }
+        
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .process-step {
+            text-align: center;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            background-color: var(--light);
+        }
+        
+        .step-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary);
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 600;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+        }
+        
+        .process-step h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .service-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-content .service-image,
+            .service-content .service-text {
+                order: unset;
+            }
+            
+            .service-image {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="451868556_497875152916610_1592362905346651701_n.jpg" alt="SEQ Decks & Patios Logo">
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="services.html" class="active">Services</a></li>
+                    <li><a href="gallery.html">Gallery</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Our Services</h1>
+            <p>Custom outdoor living solutions for your home</p>
+        </div>
+    </section>
+
+    <section class="service-section">
+        <div class="container">
+            <div class="service-content">
+                <div class="service-image">
+                    <img src="488303960_17999939324779643_614330164914991996_n.jpg" alt="Custom Decks">
+                </div>
+                <div class="service-text">
+                    <h2>Custom Decks</h2>
+                    <p>Transform your outdoor space with a beautiful custom deck designed to suit your home's style and your family's needs.</p>
+                    <p>We specialize in timber decks that add value to your property while creating the perfect outdoor entertaining area or relaxation space.</p>
+                    
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Premium treated timber and composite materials</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Custom designs for any space or terrain</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Professional installation with attention to detail</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Optional features like built-in seating and planters</p>
+                        </div>
+                    </div>
+                    
+                    <a href="contact.html" class="btn">Get a Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="service-section">
+        <div class="container">
+            <div class="service-content">
+                <div class="service-image">
+                    <img src="488864835_17999939339779643_4772017424054875229_n.jpg" alt="Patios & Pergolas">
+                </div>
+                <div class="service-text">
+                    <h2>Patios & Pergolas</h2>
+                    <p>Create a comfortable outdoor living area that's protected from the elements with our custom-built patios and pergolas.</p>
+                    <p>Perfect for entertaining, outdoor dining, or simply enjoying your garden in comfort regardless of the weather.</p>
+                    
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Insulated and non-insulated roofing options</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Custom designs to match your home's architecture</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>High-quality materials for durability in Queensland's climate</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Optional extras like fans, lighting, and screens</p>
+                        </div>
+                    </div>
+                    
+                    <a href="contact.html" class="btn">Get a Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="service-section">
+        <div class="container">
+            <div class="service-content">
+                <div class="service-image">
+                    <img src="488906547_17999939375779643_5741278831892348083_n.jpg" alt="Outdoor Entertainment Areas">
+                </div>
+                <div class="service-text">
+                    <h2>Outdoor Entertainment Areas</h2>
+                    <p>Create the ultimate outdoor living space for entertaining family and friends with our custom-designed entertainment areas.</p>
+                    <p>From simple BBQ areas to complete outdoor kitchens and living rooms, we can help you make the most of Queensland's outdoor lifestyle.</p>
+                    
+                    <div class="service-features">
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Custom outdoor kitchens and BBQ areas</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Comfortable seating and dining spaces</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Weather-resistant materials for durability</p>
+                        </div>
+                        <div class="service-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Integrated lighting and power solutions</p>
+                        </div>
+                    </div>
+                    
+                    <a href="contact.html" class="btn">Get a Quote</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="process-section">
+        <div class="container">
+            <h2>Our Process</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3>Consultation</h3>
+                    <p>We meet to discuss your vision, requirements, and budget. We'll assess your space and provide expert advice on design possibilities.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3>Design & Quote</h3>
+                    <p>We create a custom design for your approval and provide a transparent, detailed quote with no hidden costs.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3>Construction</h3>
+                    <p>Our skilled team brings your design to life using quality materials and craftsmanship, keeping you informed throughout the process.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3>Completion</h3>
+                    <p>We ensure you're completely satisfied with the finished project before final handover, with ongoing support available if needed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Start Your Project?</h2>
+            <p>Contact us today for a consultation and free quote</p>
+            <a href="contact.html" class="btn">Get In Touch</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="451868556_497875152916610_1592362905346651701_n.jpg" alt="SEQ Decks & Patios Logo">
+                    <p>Quality outdoor living spaces for South East Queensland homes</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> (07) XXXX XXXX</p>
+                    <p><i class="fas fa-envelope"></i> info@seqdecksandpatios.com.au</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 SEQ Decks & Patios. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+            this.classList.toggle('active');
+        });
+    </script>
+</body>
+</html> 

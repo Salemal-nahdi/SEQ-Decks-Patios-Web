@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery | SEQ Decks & Patios</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('489134129_17999939357779643_4730226159983703706_n.jpg');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gallery-section {
+            padding: 80px 0;
+            background-color: var(--light);
+        }
+        
+        .gallery-filter {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background-color: var(--white);
+            color: var(--dark);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: var(--white);
+            transition: transform 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-10px);
+        }
+        
+        .gallery-img {
+            position: relative;
+            overflow: hidden;
+            height: 250px;
+        }
+        
+        .gallery-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .gallery-item:hover .gallery-img img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        
+        .gallery-overlay a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background-color: var(--white);
+            color: var(--primary);
+            border-radius: 50%;
+            font-size: 20px;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+        
+        .gallery-overlay a:hover {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        
+        .gallery-info {
+            padding: 20px;
+        }
+        
+        .gallery-info h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        @media screen and (max-width: 768px) {
+            .gallery-item {
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="451868556_497875152916610_1592362905346651701_n.jpg" alt="SEQ Decks & Patios Logo">
+                </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="gallery.html" class="active">Gallery</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Our Projects Gallery</h1>
+            <p>Explore our completed projects and get inspired</p>
+        </div>
+    </section>
+
+    <section class="gallery-section">
+        <div class="container">
+            <div class="gallery-filter">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="decks">Decks</button>
+                <button class="filter-btn" data-filter="patios">Patios</button>
+                <button class="filter-btn" data-filter="entertainment">Entertainment Areas</button>
+            </div>
+
+            <div class="gallery-grid">
+                <!-- Gallery Item 1 -->
+                <div class="gallery-item" data-category="decks">
+                    <div class="gallery-img">
+                        <img src="488303960_17999939324779643_614330164914991996_n.jpg" alt="Timber Deck">
+                        <div class="gallery-overlay">
+                            <a href="488303960_17999939324779643_614330164914991996_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Modern Timber Deck</h3>
+                        <p>Custom built timber deck with railings for a family home in Brisbane</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 -->
+                <div class="gallery-item" data-category="patios">
+                    <div class="gallery-img">
+                        <img src="488864835_17999939339779643_4772017424054875229_n.jpg" alt="Covered Patio">
+                        <div class="gallery-overlay">
+                            <a href="488864835_17999939339779643_4772017424054875229_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Covered Patio Area</h3>
+                        <p>Insulated patio roof creating a sheltered outdoor living space</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 -->
+                <div class="gallery-item" data-category="entertainment">
+                    <div class="gallery-img">
+                        <img src="488906547_17999939375779643_5741278831892348083_n.jpg" alt="Entertainment Area">
+                        <div class="gallery-overlay">
+                            <a href="488906547_17999939375779643_5741278831892348083_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Elevated Entertainment Deck</h3>
+                        <p>Multi-level deck with built-in seating and pergola</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 -->
+                <div class="gallery-item" data-category="decks">
+                    <div class="gallery-img">
+                        <img src="489134129_17999939357779643_4730226159983703706_n.jpg" alt="Pool Deck">
+                        <div class="gallery-overlay">
+                            <a href="489134129_17999939357779643_4730226159983703706_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Pool Surround Deck</h3>
+                        <p>Custom timber deck surrounding a backyard pool</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 5 -->
+                <div class="gallery-item" data-category="patios">
+                    <div class="gallery-img">
+                        <img src="488605597_18000004361779643_122080300654879565_n.jpg" alt="Backyard Patio">
+                        <div class="gallery-overlay">
+                            <a href="488605597_18000004361779643_122080300654879565_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Backyard Pergola</h3>
+                        <p>Outdoor living space with pergola and deck combination</p>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 6 -->
+                <div class="gallery-item" data-category="entertainment">
+                    <div class="gallery-img">
+                        <img src="488303960_17999939324779643_614330164914991996_n.jpg" alt="Outdoor Kitchen">
+                        <div class="gallery-overlay">
+                            <a href="488303960_17999939324779643_614330164914991996_n.jpg" title="View larger image">
+                                <i class="fas fa-search-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h3>Outdoor Entertainment Area</h3>
+                        <p>Complete outdoor living space with dining area</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Start Your Project?</h2>
+            <p>Contact us today for a consultation and free quote</p>
+            <a href="contact.html" class="btn">Get In Touch</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="451868556_497875152916610_1592362905346651701_n.jpg" alt="SEQ Decks & Patios Logo">
+                    <p>Quality outdoor living spaces for South East Queensland homes</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact Us</h3>
+                    <p><i class="fas fa-phone"></i> (07) XXXX XXXX</p>
+                    <p><i class="fas fa-envelope"></i> info@seqdecksandpatios.com.au</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 SEQ Decks & Patios. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+            this.classList.toggle('active');
+        });
+
+        // Gallery filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const galleryItems = document.querySelectorAll('.gallery-item');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get filter value
+                const filterValue = this.getAttribute('data-filter');
+                
+                // Filter gallery items
+                galleryItems.forEach(item => {
+                    if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
