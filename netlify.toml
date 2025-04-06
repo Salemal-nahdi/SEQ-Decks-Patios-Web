@@ -5,17 +5,17 @@
   # Define the contact form
   [forms.contact]
     # Configure success page for the form
-    success_url = "thank-you.html"
+    success_url = "/thank-you"
 
 # Specific redirect for thank-you page
 [[redirects]]
   from = "/thank-you"
-  to = "thank-you.html"
+  to = "/thank-you.html"
   status = 200
 
 [[redirects]]
   from = "/thank-you.html"
-  to = "thank-you.html"
+  to = "/thank-you.html"
   status = 200
 
 # Redirect 404 errors to index.html
