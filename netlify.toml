@@ -1,18 +1,21 @@
 [build]
   publish = "/"
   
-[forms]
-  # Define the contact form
-  [forms.contact]
-    # Configure success page for the form
-    success_url = "/thank-you"
+[[forms]]
+  name = "contact"
+  success_url = "/thank-you.html"
 
-# Specific redirect for thank-you page
+[[forms]]
+  name = "quick-quote"
+  success_url = "/thank-you.html"
+
+# Specific redirect for thank-you page (no extension)
 [[redirects]]
   from = "/thank-you"
   to = "/thank-you.html"
   status = 200
 
+# Explicit thank-you.html file
 [[redirects]]
   from = "/thank-you.html"
   to = "/thank-you.html"

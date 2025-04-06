@@ -298,9 +298,8 @@
                 
                 <div class="contact-form">
                     <h3>Send a Message</h3>
-                    <form id="contactForm" name="contact" method="POST" data-netlify="true" action="thank-you.html" netlify-honeypot="bot-field">
+                    <form id="contactForm" name="contact" method="POST" netlify data-netlify="true" netlify-honeypot="bot-field">
                         <input type="hidden" name="form-name" value="contact">
-                        <input type="hidden" name="success_url" value="/thank-you" />
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Your Name</label>
@@ -390,10 +389,8 @@
             <h2>Quick Quote Request</h2>
             <p>Fill in your details below for a fast, free quote!</p>
             
-            <form id="quickQuoteForm" name="quick-quote" method="POST" data-netlify="true" action="thank-you.html" netlify-honeypot="bot-field">
+            <form id="quickQuoteForm" name="quick-quote" method="POST" netlify data-netlify="true" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="quick-quote">
-                <input type="hidden" name="success_url" value="/thank-you" />
-                
                 <div class="form-group">
                     <label for="quickName">Your Name</label>
                     <input type="text" id="quickName" name="name" required>
@@ -499,6 +496,21 @@
                     document.body.classList.add("modal-open");
                 }
             });
+        });
+
+        // Handle form submissions
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            // Let Netlify handle the form submission first
+            setTimeout(function() {
+                window.location.href = '/thank-you.html';
+            }, 1000);
+        });
+
+        document.getElementById('quickQuoteForm').addEventListener('submit', function(e) {
+            // Let Netlify handle the form submission first
+            setTimeout(function() {
+                window.location.href = '/thank-you.html';
+            }, 1000);
         });
     </script>
 </body>
