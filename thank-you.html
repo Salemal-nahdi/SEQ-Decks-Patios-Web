@@ -67,6 +67,11 @@
                     <li><a href="index.html">Home</a></li>
                 </ul>
             </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
     </header>
 
@@ -106,5 +111,13 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('nav ul').classList.toggle('show');
+            this.classList.toggle('active');
+        });
+    </script>
 </body>
 </html> 
