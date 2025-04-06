@@ -7,6 +7,12 @@
     # Configure success page for the form
     success_url = "/thank-you.html"
 
+# Specific redirect for thank-you page
+[[redirects]]
+  from = "/thank-you.html"
+  to = "/thank-you.html"
+  status = 200
+
 # Redirect 404 errors to index.html
 [[redirects]]
   from = "/*"
