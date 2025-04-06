@@ -235,7 +235,7 @@
                         <i class="fas fa-phone-alt"></i>
                         <div class="detail-text">
                             <h4>Phone</h4>
-                            <p>(07) XXXX XXXX</p>
+                            <p>0481 597 415</p>
                         </div>
                     </div>
                     
@@ -260,20 +260,29 @@
                     <div class="contact-detail">
                         <i class="fas fa-map-marker-alt"></i>
                         <div class="detail-text">
+                            <h4>Location</h4>
+                            <p>Camp Hill, QLD, Australia, 4152</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-detail">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <div class="detail-text">
                             <h4>Service Area</h4>
-                            <p>South East Queensland - Brisbane, Gold Coast, Sunshine Coast, and surrounding areas</p>
+                            <p>Brisbane, QLD, Australia • Sunshine Coast, QLD, Australia • Gold Coast, QLD, Australia</p>
                         </div>
                     </div>
                     
                     <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/seqdecksandpatios" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@seqcarpentry" target="_blank"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
                 
                 <div class="contact-form">
                     <h3>Send a Message</h3>
-                    <form id="contactForm" action="#" method="POST">
+                    <form id="contactForm" name="contact" method="POST" data-netlify="true" action="/thank-you.html">
+                        <input type="hidden" name="form-name" value="contact">
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="name">Your Name</label>
@@ -334,11 +343,11 @@
                 </div>
                 <div class="footer-contact">
                     <h3>Contact Us</h3>
-                    <p><i class="fas fa-phone"></i> (07) XXXX XXXX</p>
+                    <p><i class="fas fa-phone"></i> 0481 597 415</p>
                     <p><i class="fas fa-envelope"></i> info@seqdecksandpatios.com.au</p>
                     <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/seqdecksandpatios" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@seqcarpentry" target="_blank"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
             </div>
@@ -385,13 +394,6 @@
                     document.querySelector('nav a[href*=' + sectionId + ']').classList.remove('active');
                 }
             });
-        });
-
-        // Form submission (would need backend processing in a real implementation)
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Thank you for your message! We will get back to you as soon as possible.');
-            this.reset();
         });
     </script>
 </body>

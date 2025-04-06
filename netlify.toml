@@ -1,7 +1,14 @@
 [build]
   publish = "/"
+  
+[forms]
+  # Define the contact form
+  [forms.contact]
+    # Configure success page for the form
+    success_url = "/thank-you.html"
 
+# Redirect 404 errors to index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 404 
