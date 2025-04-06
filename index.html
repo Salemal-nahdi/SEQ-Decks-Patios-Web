@@ -17,6 +17,14 @@
         <textarea name="message"></textarea>
     </form>
     
+    <!-- Hidden form for Quote popup (Netlify) -->
+    <form name="quick-quote" netlify netlify-honeypot="bot-field" hidden>
+        <input type="text" name="name" />
+        <input type="tel" name="phone" />
+        <input type="email" name="email" />
+        <select name="projectType"></select>
+    </form>
+    
     <header id="top">
         <div class="container">
             <div class="logo">
@@ -366,6 +374,56 @@
         </div>
     </footer>
 
+    <!-- Floating Quote Button -->
+    <div class="quote-button">
+        <button id="openQuoteBtn">
+            <i class="fas fa-comment-dollar"></i>
+            <span>Get a Quote</span>
+        </button>
+    </div>
+
+    <!-- Quote Popup Modal -->
+    <div id="quoteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Quick Quote Request</h2>
+            <p>Fill in your details below for a fast, free quote!</p>
+            
+            <form id="quickQuoteForm" name="quick-quote" method="POST" data-netlify="true" action="/thank-you.html">
+                <input type="hidden" name="form-name" value="quick-quote">
+                
+                <div class="form-group">
+                    <label for="quickName">Your Name</label>
+                    <input type="text" id="quickName" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quickPhone">Phone</label>
+                    <input type="tel" id="quickPhone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quickEmail">Email</label>
+                    <input type="email" id="quickEmail" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quickProjectType">Project Type</label>
+                    <select id="quickProjectType" name="projectType" required>
+                        <option value="">Select Project Type</option>
+                        <option value="deck">Deck</option>
+                        <option value="patio">Patio</option>
+                        <option value="pergola">Pergola</option>
+                        <option value="entertainment">Entertainment Area</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn submit-btn">Request Quote</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         // Mobile menu toggle
         document.querySelector('.hamburger').addEventListener('click', function() {
@@ -401,6 +459,42 @@
                     document.querySelector('nav a[href*=' + sectionId + ']').classList.add('active');
                 } else {
                     document.querySelector('nav a[href*=' + sectionId + ']').classList.remove('active');
+                }
+            });
+        });
+
+        // Quote Modal
+        const modal = document.getElementById("quoteModal");
+        const btn = document.getElementById("openQuoteBtn");
+        const span = document.getElementsByClassName("close-modal")[0];
+
+        // Open modal when quote button is clicked
+        btn.onclick = function() {
+            modal.style.display = "block";
+            document.body.classList.add("modal-open");
+        }
+
+        // Close modal when X is clicked
+        span.onclick = function() {
+            modal.style.display = "none";
+            document.body.classList.remove("modal-open");
+        }
+
+        // Close modal when clicking outside the modal
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                document.body.classList.remove("modal-open");
+            }
+        }
+
+        // Also add quote button triggers for hero and CTA section buttons
+        document.querySelectorAll('.hero .btn, .cta-section .btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#contact') {
+                    e.preventDefault();
+                    modal.style.display = "block";
+                    document.body.classList.add("modal-open");
                 }
             });
         });
