@@ -6,7 +6,7 @@
  */
 
 // Change this to your Imgix source domain after setup
-const IMGIX_DOMAIN = 'seqdecks.imgix.net';
+const IMGIX_DOMAIN = 'imagesseqdecksandpatios.imgix.net';
 
 // Parameters for image optimization
 const DEFAULT_PARAMS = {
