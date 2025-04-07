@@ -156,6 +156,23 @@ header .container {
     transform: scale(1.05);
 }
 
+.company-name {
+    display: flex;
+    align-items: center;
+}
+
+.company-name h1 {
+    color: var(--primary);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    transition: all 0.3s;
+}
+
+.company-name h1:hover {
+    color: var(--primary-dark);
+}
+
 nav ul {
     display: flex;
 }
@@ -1253,44 +1270,82 @@ footer::before {
     .hero h1 {
         font-size: 40px;
     }
+    
+    .company-name h1 {
+        font-size: 20px;
+    }
 }
 
 @media screen and (max-width: 768px) {
     .section-title {
-        font-size: 32px;
+        font-size: 30px;
+        margin-bottom: 40px;
+    }
+    
+    header .container {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    
+    .logo {
+        order: 1;
+        margin-right: 0;
+    }
+    
+    .company-name {
+        order: 2;
+        flex: 1;
+        text-align: left;
     }
     
     .hamburger {
+        order: 3;
         display: flex;
     }
-
-    nav ul {
-        position: fixed;
-        top: 90px;
-        left: -100%;
+    
+    nav {
+        order: 4;
         width: 100%;
+    }
+    
+    nav ul {
+        display: none;
         flex-direction: column;
-        background-color: var(--white);
-        box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-        transition: left 0.3s;
+        width: 100%;
+        text-align: center;
         padding: 20px 0;
-        z-index: 100;
+        background-color: var(--white);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 10px 10px;
+        margin-top: 15px;
     }
-
+    
     nav ul.show {
-        left: 0;
+        display: flex;
     }
-
+    
     nav ul li {
         margin: 0;
         text-align: center;
     }
-
+    
     nav ul li a {
         display: block;
         padding: 15px;
     }
-
+    
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+    
+    .hamburger.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+    }
+    
     .hero {
         padding: 120px 0;
     }
@@ -1308,20 +1363,24 @@ footer::before {
         gap: 0;
     }
 
-    .hamburger.active span:nth-child(1) {
-        transform: translateY(8px) rotate(45deg);
-    }
-
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-        transform: translateY(-8px) rotate(-45deg);
-    }
-    
     .contact-info, .contact-form {
         padding: 30px;
+    }
+    
+    header .container {
+        flex-wrap: wrap;
+    }
+    
+    .logo {
+        margin-right: 20px;
+    }
+    
+    .company-name {
+        flex: 1;
+    }
+    
+    .company-name h1 {
+        font-size: 18px;
     }
 }
 
