@@ -352,7 +352,7 @@
                 
                 <div class="contact-form">
                     <h3>Send a Message</h3>
-                    <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thank-you.html" data-netlify-success-url="/thank-you.html">
+                    <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                         <input type="hidden" name="form-name" value="contact">
                         <div class="form-row">
                             <div class="form-group">
@@ -443,7 +443,7 @@
             <h2>Quick Quote Request</h2>
             <p>Fill in your details below for a fast, free quote!</p>
             
-            <form id="quickQuoteForm" name="quick-quote" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thank-you.html" data-netlify-success-url="/thank-you.html">
+            <form id="quickQuoteForm" name="quick-quote" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                 <input type="hidden" name="form-name" value="quick-quote">
                 <div class="form-group">
                     <label for="quickName">Your Name</label>
@@ -552,21 +552,47 @@
             });
         });
 
-        // Handle form submissions
+        // Handle form submissions with dynamic thank-you page redirect
         document.getElementById('contactForm').addEventListener('submit', function(e) {
-            // Form will be handled by Netlify with action="/thank-you.html"
-            // This JS is just for backup in case the action attribute doesn't work
-            setTimeout(function() {
+            e.preventDefault();
+            const form = this;
+            const data = new FormData(form);
+            
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data).toString()
+            })
+            .then(() => {
+                // Redirect to thank-you page with current URL as base
+                window.location.href = window.location.href.split('/').slice(0, -1).join('/') + '/thank-you.html';
+            })
+            .catch(error => {
+                console.error('Form submission error:', error);
+                // Fallback redirect
                 window.location.href = 'thank-you.html';
-            }, 1000);
+            });
         });
 
         document.getElementById('quickQuoteForm').addEventListener('submit', function(e) {
-            // Form will be handled by Netlify with action="/thank-you.html"
-            // This JS is just for backup in case the action attribute doesn't work
-            setTimeout(function() {
+            e.preventDefault();
+            const form = this;
+            const data = new FormData(form);
+            
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(data).toString()
+            })
+            .then(() => {
+                // Redirect to thank-you page with current URL as base
+                window.location.href = window.location.href.split('/').slice(0, -1).join('/') + '/thank-you.html';
+            })
+            .catch(error => {
+                console.error('Form submission error:', error);
+                // Fallback redirect
                 window.location.href = 'thank-you.html';
-            }, 1000);
+            });
         });
     </script>
 </body>
