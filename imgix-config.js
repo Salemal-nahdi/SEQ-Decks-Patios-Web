@@ -12,17 +12,27 @@ const imagesBasePath = "images/seaqdecksandpatios/";
 // Track Imgix availability
 let imgixAvailable = false;
 let imgixChecked = false;
+let imgixCheckPromise = null;
 
-// Check if Imgix is working with more robust verification
+// A mapping of already processed image URLs for caching
+const processedImagesCache = new Map();
+
+// Check if Imgix is working with more robust verification - optimized with caching
 function checkImgixAvailability() {
-    return new Promise((resolve) => {
-        if (imgixChecked) {
-            resolve(imgixAvailable);
-            return;
-        }
+    // Return existing promise if already checking
+    if (imgixCheckPromise) {
+        return imgixCheckPromise;
+    }
+    
+    // Return cached result if already checked
+    if (imgixChecked) {
+        return Promise.resolve(imgixAvailable);
+    }
 
-        console.log('🔍 Testing Imgix availability...');
-        
+    console.log('🔍 Testing Imgix availability...');
+    
+    // Create new promise and store it
+    imgixCheckPromise = new Promise((resolve) => {
         const testImage = new Image();
         let timeoutId;
         
@@ -30,6 +40,7 @@ function checkImgixAvailability() {
             clearTimeout(timeoutId);
             imgixAvailable = true;
             imgixChecked = true;
+            imgixCheckPromise = null;
             console.log('✅ Imgix is available and working!');
             
             // Add notification to page if in development mode
@@ -50,6 +61,7 @@ function checkImgixAvailability() {
                 clearTimeout(timeoutId);
                 imgixAvailable = true;
                 imgixChecked = true;
+                imgixCheckPromise = null;
                 console.log('✅ Imgix is available and working (via fallback)!');
                 
                 if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
@@ -63,6 +75,7 @@ function checkImgixAvailability() {
                 clearTimeout(timeoutId);
                 imgixAvailable = false;
                 imgixChecked = true;
+                imgixCheckPromise = null;
                 console.error('❌ Imgix domain not available. Site will not show images properly.');
                 
                 // Always show error in preview/development environments
@@ -71,24 +84,27 @@ function checkImgixAvailability() {
                 resolve(false);
             };
             
-            // Try direct path without imagesBasePath
-            fallbackImage.src = `https://${imgixDomain}/images/seaqdecksandpatios/final%20logo.png?w=1&h=1&auto=format&s=1`;
+            // Try direct path without imagesBasePath - with cache buster
+            fallbackImage.src = `https://${imgixDomain}/images/seaqdecksandpatios/final%20logo.png?w=1&h=1&auto=format&s=${Date.now()}`;
         };
         
-        // Try to load a test image from the Imgix domain
-        testImage.src = `https://${imgixDomain}/${imagesBasePath}final%20logo.png?w=1&h=1&auto=format&s=1`;
+        // Try to load a test image from the Imgix domain - with cache buster
+        testImage.src = `https://${imgixDomain}/${imagesBasePath}final%20logo.png?w=1&h=1&auto=format&s=${Date.now()}`;
         
-        // Timeout after 5 seconds
+        // Timeout after 3 seconds (reduced from 5s for faster loading)
         timeoutId = setTimeout(() => {
             imgixAvailable = false;
             imgixChecked = true;
+            imgixCheckPromise = null;
             console.error('⏱️ Imgix availability check timed out. Site will not show images properly.');
             
             showImgixStatus(false, true);
             
             resolve(false);
-        }, 5000);
+        }, 3000);
     });
+    
+    return imgixCheckPromise;
 }
 
 // Function to show Imgix status on the page
@@ -116,14 +132,14 @@ function showImgixStatus(available, timeout = false) {
         statusEl.style.backgroundColor = '#4CAF50';
         statusEl.innerHTML = '✅ Imgix Active - Images Optimized';
         
-        // Auto-hide after 5 seconds if successful
+        // Auto-hide after 3 seconds if successful (reduced from 5s)
         setTimeout(() => {
             if (statusEl.parentNode) {
                 statusEl.style.opacity = '0';
                 statusEl.style.transition = 'opacity 0.5s ease';
                 setTimeout(() => statusEl.remove(), 500);
             }
-        }, 5000);
+        }, 3000);
     } else {
         statusEl.style.backgroundColor = '#F44336';
         if (timeout) {
@@ -147,17 +163,17 @@ function showImgixStatus(available, timeout = false) {
     document.body.appendChild(statusEl);
 }
 
-// Gallery-specific image parameters
+// Optimized image parameter sets with WebP format by default
 const galleryImageParams = {
     w: 800,
     h: 600,
     fit: "crop",
     crop: "entropy",
     q: 80,
-    auto: "format,compress"
+    auto: "format,compress",
+    fm: "webp"
 };
 
-// Logo-specific image parameters
 const logoImageParams = {
     w: 200,
     fit: "max",
@@ -166,36 +182,44 @@ const logoImageParams = {
     q: 85
 };
 
-// Hero background image parameters
 const heroImageParams = {
     w: 1920,
     fit: "max", 
     q: 80,
     auto: "format,compress",
-    fm: "webp" // Use WebP format for better compression
+    fm: "webp"
 };
 
-// Service image parameters - slightly different aspect ratio
 const serviceImageParams = {
     w: 800,
     h: 650,
     fit: "crop",
     crop: "entropy",
     auto: "format,compress",
-    q: 80
+    q: 80,
+    fm: "webp"
 };
 
 /**
- * Generate an Imgix URL with appropriate parameters
+ * Generate an Imgix URL with appropriate parameters - optimized with caching
  * @param {string} imagePath - Original image path
  * @param {Object} params - Custom parameters to override defaults
  * @returns {string} Complete Imgix URL
  */
 function getImgixUrl(imagePath, params = {}) {
+    // Generate cache key
+    const cacheKey = `${imagePath}-${JSON.stringify(params)}`;
+    
+    // Check cache first
+    if (processedImagesCache.has(cacheKey)) {
+        return processedImagesCache.get(cacheKey);
+    }
+    
     const baseParams = {
         auto: 'format,compress',
         q: 75,
         fit: 'max',
+        fm: 'webp',
         expires: 31536000 // 1 year cache
     };
     
@@ -206,30 +230,49 @@ function getImgixUrl(imagePath, params = {}) {
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
     
-    return imgixAvailable ? 
+    const result = imgixAvailable ? 
         `https://${imgixDomain}/${imagesBasePath}${imagePath}?${queryString}` : 
         `images/${imagePath}`;
+    
+    // Store in cache
+    processedImagesCache.set(cacheKey, result);
+    
+    return result;
 }
 
-// Function to preload critical images
+// Function to preload critical images efficiently
 function preloadCriticalImages() {
-    // Preload hero image
-    const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
-    const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
+    // Use requestIdleCallback to not block rendering
+    const preloadFunc = () => {
+        // Preload hero image with high priority
+        const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
+        const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
+        
+        if (!document.querySelector(`link[rel="preload"][href="${imgixHeroBg}"]`)) {
+            const preloadLink = document.createElement('link');
+            preloadLink.rel = 'preload';
+            preloadLink.as = 'image';
+            preloadLink.href = imgixHeroBg;
+            preloadLink.setAttribute('fetchpriority', 'high');
+            document.head.appendChild(preloadLink);
+        }
+        
+        // Preload logo with medium priority
+        const logoImg = getImgixUrl('final logo.png', logoImageParams);
+        if (!document.querySelector(`link[rel="preload"][href="${logoImg}"]`)) {
+            const preloadLogo = document.createElement('link');
+            preloadLogo.rel = 'preload';
+            preloadLogo.as = 'image';
+            preloadLogo.href = logoImg;
+            document.head.appendChild(preloadLogo);
+        }
+    };
     
-    const preloadLink = document.createElement('link');
-    preloadLink.rel = 'preload';
-    preloadLink.as = 'image';
-    preloadLink.href = imgixHeroBg;
-    document.head.appendChild(preloadLink);
-    
-    // Preload logo
-    const logoImg = getImgixUrl('final logo.png', logoImageParams);
-    const preloadLogo = document.createElement('link');
-    preloadLogo.rel = 'preload';
-    preloadLogo.as = 'image';
-    preloadLogo.href = logoImg;
-    document.head.appendChild(preloadLogo);
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(preloadFunc, { timeout: 2000 });
+    } else {
+        setTimeout(preloadFunc, 200);
+    }
 }
 
 /**
@@ -261,21 +304,28 @@ function getImageParams(img) {
     return {
         w: 800,
         auto: "format,compress",
-        q: 75
+        q: 75,
+        fm: "webp"
     };
 }
 
 /**
- * Generate a srcset for responsive images using Imgix
+ * Generate a srcset for responsive images using Imgix - optimized for fewer sizes
  * @param {string} imagePath - Original image path
  * @param {Object} baseParams - Base parameters for the image
  * @returns {string} Complete srcset attribute value
  */
 function generateSrcset(imagePath, baseParams = {}) {
-    // Define widths for different screen sizes - optimize for fewer sizes
+    // Define widths for different screen sizes - reduced to just 3 sizes
     const widths = [400, 800, 1200];
     
-    return widths.map(width => {
+    // Check cache
+    const cacheKey = `srcset-${imagePath}-${JSON.stringify(baseParams)}`;
+    if (processedImagesCache.has(cacheKey)) {
+        return processedImagesCache.get(cacheKey);
+    }
+    
+    const srcset = widths.map(width => {
         const params = {
             ...baseParams,
             w: width,
@@ -283,12 +333,15 @@ function generateSrcset(imagePath, baseParams = {}) {
         };
         return `${getImgixUrl(imagePath, params)} ${width}w`;
     }).join(', ');
+    
+    // Store in cache
+    processedImagesCache.set(cacheKey, srcset);
+    
+    return srcset;
 }
 
 /**
- * Add a function to enable art direction for gallery images
- * This is an advanced feature that will wrap gallery images in picture elements
- * for better mobile art direction
+ * Enhance gallery images with optimized picture elements
  */
 function enhanceGalleryImages() {
     // Skip if Imgix isn't available
@@ -296,59 +349,87 @@ function enhanceGalleryImages() {
         return;
     }
     
-    // Only apply to gallery items
-    document.querySelectorAll('.gallery-item img').forEach(img => {
-        // Skip if already processed or using external sources
-        if (img.hasAttribute('data-imgix-processed')) {
-            return;
+    // Optimize by processing in chunks to avoid blocking the main thread
+    const galleryImages = [...document.querySelectorAll('.gallery-item img')];
+    const chunkSize = 5;
+    
+    // Process images in chunks
+    function processImageChunk(startIndex) {
+        const endIndex = Math.min(startIndex + chunkSize, galleryImages.length);
+        
+        for (let i = startIndex; i < endIndex; i++) {
+            const img = galleryImages[i];
+            
+            // Skip if already processed or using external sources
+            if (img.hasAttribute('data-imgix-processed')) {
+                continue;
+            }
+            
+            const originalSrc = img.getAttribute('data-original-src') || img.src;
+            
+            // Create picture element
+            const picture = document.createElement('picture');
+            
+            // Add source for mobile - square crop
+            const mobileSource = document.createElement('source');
+            mobileSource.setAttribute('media', '(max-width: 576px)');
+            mobileSource.setAttribute('srcset', generateSrcset(originalSrc, {
+                ...galleryImageParams,
+                h: galleryImageParams.w, // Make it square for mobile
+                ar: '1:1',
+                fit: 'crop',
+                crop: 'faces,entropy'
+            }));
+            
+            // Add source for tablets - 4:3 aspect ratio
+            const tabletSource = document.createElement('source');
+            tabletSource.setAttribute('media', '(max-width: 992px)');
+            tabletSource.setAttribute('srcset', generateSrcset(originalSrc, {
+                ...galleryImageParams,
+                ar: '4:3',
+                fit: 'crop'
+            }));
+            
+            // Add default source - original aspect ratio
+            const defaultSource = document.createElement('source');
+            defaultSource.setAttribute('srcset', img.getAttribute('srcset'));
+            
+            // Mark image as processed
+            img.setAttribute('data-imgix-processed', 'true');
+            img.setAttribute('data-original-src', originalSrc);
+            
+            // Assemble picture element
+            picture.appendChild(mobileSource);
+            picture.appendChild(tabletSource);
+            picture.appendChild(defaultSource);
+            
+            // Replace img with picture (keeping the img inside)
+            img.parentNode.insertBefore(picture, img);
+            picture.appendChild(img);
         }
         
-        const originalSrc = img.getAttribute('data-original-src') || img.src;
-        
-        // Create picture element
-        const picture = document.createElement('picture');
-        
-        // Add source for mobile - square crop
-        const mobileSource = document.createElement('source');
-        mobileSource.setAttribute('media', '(max-width: 576px)');
-        mobileSource.setAttribute('srcset', generateSrcset(originalSrc, {
-            ...galleryImageParams,
-            h: galleryImageParams.w, // Make it square for mobile
-            ar: '1:1',
-            fit: 'crop',
-            crop: 'faces,entropy'
-        }));
-        
-        // Add source for tablets - 4:3 aspect ratio
-        const tabletSource = document.createElement('source');
-        tabletSource.setAttribute('media', '(max-width: 992px)');
-        tabletSource.setAttribute('srcset', generateSrcset(originalSrc, {
-            ...galleryImageParams,
-            ar: '4:3',
-            fit: 'crop'
-        }));
-        
-        // Add default source - original aspect ratio
-        const defaultSource = document.createElement('source');
-        defaultSource.setAttribute('srcset', img.getAttribute('srcset'));
-        
-        // Mark image as processed
-        img.setAttribute('data-imgix-processed', 'true');
-        img.setAttribute('data-original-src', originalSrc);
-        
-        // Assemble picture element
-        picture.appendChild(mobileSource);
-        picture.appendChild(tabletSource);
-        picture.appendChild(defaultSource);
-        
-        // Replace img with picture (keeping the img inside)
-        img.parentNode.insertBefore(picture, img);
-        picture.appendChild(img);
-    });
+        // Process next chunk if there are more images
+        if (endIndex < galleryImages.length) {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => processImageChunk(endIndex), { timeout: 1000 });
+            } else {
+                setTimeout(() => processImageChunk(endIndex), 10);
+            }
+        }
+    }
+    
+    // Start processing the first chunk
+    if (galleryImages.length > 0) {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => processImageChunk(0), { timeout: 1000 });
+        } else {
+            setTimeout(() => processImageChunk(0), 10);
+        }
+    }
 }
 
 /**
- * Apply Imgix to all images on the page
+ * Apply Imgix to all images on the page - optimized for performance
  */
 async function applyImgixToImages() {
     // First check if Imgix is available
@@ -363,12 +444,25 @@ async function applyImgixToImages() {
     // Preload critical images
     preloadCriticalImages();
     
-    // Process all images on the page
-    document.querySelectorAll('img').forEach(img => {
+    // Use Intersection Observer for lazy loading
+    const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                processImage(img);
+                imageObserver.unobserve(img);
+            }
+        });
+    }, {
+        rootMargin: '200px' // Start loading images when they're 200px from viewport
+    });
+    
+    // Process all images on the page with optimized processing
+    function processImage(img) {
         const originalSrc = img.getAttribute('src');
         
-        // Skip already processed Imgix images
-        if (originalSrc && !originalSrc.includes(imgixDomain)) {
+        // Skip already processed Imgix images or external images
+        if (originalSrc && !originalSrc.includes(imgixDomain) && !originalSrc.startsWith('http')) {
             // Save original source for potential future use
             img.setAttribute('data-original-src', originalSrc);
             
@@ -400,6 +494,7 @@ async function applyImgixToImages() {
             
             // Add responsive loading behavior
             img.setAttribute('loading', 'lazy');
+            img.setAttribute('decoding', 'async');
             
             // Add error handler that logs which images fail to load
             img.addEventListener('error', function() {
@@ -442,9 +537,20 @@ async function applyImgixToImages() {
                 }
             });
         }
+    }
+    
+    // Immediately process images above the fold, observe others
+    document.querySelectorAll('img').forEach((img, index) => {
+        // Process first 5 images immediately (likely above the fold)
+        if (index < 5) {
+            processImage(img);
+        } else {
+            // Observe others for intersection
+            imageObserver.observe(img);
+        }
     });
     
-    // Update the hero background image in CSS if it exists
+    // Update the hero background image in CSS if it exists - high priority
     const heroSection = document.querySelector('.hero');
     if (heroSection) {
         // Use a hero image appropriate for your site
@@ -452,24 +558,22 @@ async function applyImgixToImages() {
         
         // Use Imgix if available, otherwise use local image
         const imgixHeroBg = imgixAvailable ? 
-            `https://${imgixDomain}/${imagesBasePath}${heroBgImage}?${new URLSearchParams(heroImageParams).toString()}` : 
+            getImgixUrl(heroBgImage, heroImageParams) : 
             `images/${heroBgImage}`;
             
         // Set the background image with fallback
         try {
+            // Apply the image directly without waiting
             heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
             
             // Add a backup inline style with fallback image if needed
             if (imgixAvailable) {
-                const fallbackImg = document.createElement('img');
-                fallbackImg.style.display = 'none';
+                const fallbackImg = new Image();
                 fallbackImg.src = imgixHeroBg;
                 fallbackImg.onerror = function() {
                     console.error('❌ Hero background failed to load via Imgix, using fallback');
                     heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/${heroBgImage}')`;
                 };
-                document.body.appendChild(fallbackImg);
-                setTimeout(() => fallbackImg.remove(), 5000); // Clean up after 5 seconds
             }
         } catch (e) {
             console.error('Error setting hero background:', e);
@@ -478,24 +582,38 @@ async function applyImgixToImages() {
         }
     }
     
-    // Enhance gallery images with picture elements for art direction
-    setTimeout(enhanceGalleryImages, 100);
+    // Enhance gallery images with picture elements for art direction - defer this work
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(enhanceGalleryImages, { timeout: 2000 });
+    } else {
+        setTimeout(enhanceGalleryImages, 1000);
+    }
     
-    // Report stats after all images are processed
-    setTimeout(() => {
-        const totalImages = document.querySelectorAll('img').length;
-        const failedImages = document.querySelectorAll('img.imgix-load-failed').length;
-        
-        console.log(`📊 Imgix Image Report: ${totalImages - failedImages}/${totalImages} images successfully optimized`);
-        
-        if (failedImages > 0) {
-            console.warn(`⚠️ ${failedImages} images failed to load via Imgix`);
-        }
-    }, 2000);
+    // Report stats after all images are processed - only in dev mode
+    if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+        setTimeout(() => {
+            const totalImages = document.querySelectorAll('img').length;
+            const failedImages = document.querySelectorAll('img.imgix-load-failed').length;
+            
+            console.log(`📊 Imgix Image Report: ${totalImages - failedImages}/${totalImages} images successfully optimized`);
+            
+            if (failedImages > 0) {
+                console.warn(`⚠️ ${failedImages} images failed to load via Imgix`);
+            }
+        }, 3000);
+    }
 }
 
-// Initialize when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', applyImgixToImages);
+// Initialize when the DOM is loaded - use DOMContentLoaded for faster response
+document.addEventListener('DOMContentLoaded', () => {
+    // Use requestIdleCallback to not block rendering
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(applyImgixToImages, { timeout: 2000 });
+    } else {
+        // Fallback for browsers that don't support requestIdleCallback
+        setTimeout(applyImgixToImages, 200);
+    }
+});
 
 // Export functions for potential usage in other scripts
 window.imgixUtils = {
