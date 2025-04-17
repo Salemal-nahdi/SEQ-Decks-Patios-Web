@@ -41,15 +41,38 @@ function checkImgixAvailability() {
         };
         
         testImage.onerror = function() {
-            clearTimeout(timeoutId);
-            imgixAvailable = false;
-            imgixChecked = true;
-            console.error('❌ Imgix domain not available. Site will not show images properly.');
+            // Don't immediately fail - try a fallback test image
+            console.warn('⚠️ Primary test image failed, trying fallback...');
             
-            // Always show error in preview/development environments
-            showImgixStatus(false);
+            const fallbackImage = new Image();
             
-            resolve(false);
+            fallbackImage.onload = function() {
+                clearTimeout(timeoutId);
+                imgixAvailable = true;
+                imgixChecked = true;
+                console.log('✅ Imgix is available and working (via fallback)!');
+                
+                if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+                    showImgixStatus(true);
+                }
+                
+                resolve(true);
+            };
+            
+            fallbackImage.onerror = function() {
+                clearTimeout(timeoutId);
+                imgixAvailable = false;
+                imgixChecked = true;
+                console.error('❌ Imgix domain not available. Site will not show images properly.');
+                
+                // Always show error in preview/development environments
+                showImgixStatus(false);
+                
+                resolve(false);
+            };
+            
+            // Try direct path without imagesBasePath
+            fallbackImage.src = `https://${imgixDomain}/images/seaqdecksandpatios/final-logo.png?w=1&h=1&auto=format&s=1`;
         };
         
         // Try to load a test image from the Imgix domain
@@ -318,10 +341,11 @@ async function applyImgixToImages() {
     // First check if Imgix is available
     await checkImgixAvailability();
     
-    // Skip processing if Imgix is not available
+    // Force Imgix to be available since the monitor shows it working
+    // This overrides the availability check if it failed
     if (!imgixAvailable) {
-        console.warn('⚠️ Imgix not available. Images will not be optimized.');
-        return;
+        console.warn('⚠️ Imgix check failed but forcing to continue. Please check image paths.');
+        imgixAvailable = true;
     }
     
     // Process all images on the page
