@@ -4,7 +4,10 @@
  */
 
 // Configure Imgix domain
-const imgixDomain = "seqdecks.imgix.net";
+const imgixDomain = "webcraft-images.imgix.net";
+
+// Path to the images directory in the GitHub repository
+const imagesBasePath = "images/seqdecksandpatios/";
 
 // Track Imgix availability
 let imgixAvailable = true;
@@ -23,7 +26,8 @@ function checkImgixAvailability() {
             console.warn('⚠️ Imgix domain not available. Using original images as fallback.');
             resolve(false);
         };
-        testImage.src = `https://${imgixDomain}/final%20logo.png?w=1&h=1&auto=format`;
+        // Try to load a test image from the repository
+        testImage.src = `https://${imgixDomain}/${imagesBasePath}final-logo.png?w=1&h=1&auto=format`;
         
         // Timeout after 3 seconds
         setTimeout(() => {
@@ -100,8 +104,13 @@ function getImgixUrl(imagePath, params = {}) {
     const queryString = Object.entries(allParams)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
+    
+    // Check if the image path already contains the images base path
+    const fullImagePath = imagePath.includes(imagesBasePath) ? 
+        imagePath : 
+        `${imagesBasePath}${imagePath}`;
         
-    return `https://${imgixDomain}/${imagePath}${queryString ? '?' + queryString : ''}`;
+    return `https://${imgixDomain}/${fullImagePath}${queryString ? '?' + queryString : ''}`;
 }
 
 /**
