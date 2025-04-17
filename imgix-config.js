@@ -7,7 +7,7 @@
 const imgixDomain = "webcraft-images.imgix.net";
 
 // Path to the images directory in the GitHub repository
-const imagesBasePath = "images/seqdecksandpatios/";
+const imagesBasePath = ""; // Images are in the root directory
 
 // Track Imgix availability
 let imgixAvailable = true;
