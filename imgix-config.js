@@ -63,6 +63,11 @@ const ImgixLoader = (function() {
         // Skip processing for empty paths
         if (!imagePath) return '';
         
+        // Special case for hero image - always use local path for guaranteed loading
+        if (imagePath.includes('489134129_17999939357779643_4730226159983703706_n.jpg')) {
+            return 'images/' + imagePath.split('/').pop();
+        }
+        
         // Generate cache key for exact parameter combination
         const cacheKey = `${imagePath}-${JSON.stringify(params)}`;
         
@@ -117,6 +122,7 @@ const ImgixLoader = (function() {
         
         // Create new promise for availability check
         imgixCheckPromise = new Promise((resolve) => {
+            // Try loading a small test image
             const testImage = new Image();
             let timeoutId;
             
@@ -170,6 +176,12 @@ const ImgixLoader = (function() {
                     imgixCheckPromise = null;
                     console.error('❌ Imgix domain not available. Using fallback image paths.');
                     
+                    // Set hero background directly with local path
+                    const heroSection = document.querySelector('.hero');
+                    if (heroSection) {
+                        heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
+                    }
+                    
                     // Show error notification
                     showImgixStatus(false);
                     
@@ -193,6 +205,12 @@ const ImgixLoader = (function() {
                 imgixCheckPromise = null;
                 console.error('⏱️ Imgix availability check timed out. Using fallback image paths.');
                 
+                // Set hero background directly with local path
+                const heroSection = document.querySelector('.hero');
+                if (heroSection) {
+                    heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
+                }
+                
                 // Show timeout notification
                 showImgixStatus(false, true);
                 
@@ -200,7 +218,7 @@ const ImgixLoader = (function() {
                 processQueue();
                 
                 resolve(false);
-            }, 2500);
+            }, 2000); // Reduced timeout for faster fallback
         });
         
         return imgixCheckPromise;
@@ -404,6 +422,11 @@ const ImgixLoader = (function() {
      * Generate a responsive srcset
      */
     function generateSrcset(imagePath, baseParams = {}) {
+        // Special case for hero image - don't generate srcset
+        if (imagePath.includes('489134129_17999939357779643_4730226159983703706_n.jpg')) {
+            return '';
+        }
+        
         // Optimized for minimal sizes
         const widths = [400, 800, 1200];
         
@@ -436,31 +459,16 @@ const ImgixLoader = (function() {
         const heroSection = document.querySelector('.hero');
         if (!heroSection) return;
         
-        // Hero image path
-        const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
+        // Direct reference to local hero image for guaranteed loading
+        heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
         
-        // Generate optimized URL
-        const imgixHeroBg = imgixAvailable ? 
-            getImgixUrl(heroBgImage, imageParams.hero) : 
-            `images/${heroBgImage}`;
-        
-        // Set background with linear gradient overlay
-        try {
-            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
-            
-            // Add fallback handling
-            if (imgixAvailable) {
-                const fallbackImg = new Image();
-                fallbackImg.src = imgixHeroBg;
-                fallbackImg.onerror = function() {
-                    console.error('❌ Hero background failed to load via Imgix, using fallback');
-                    heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/${heroBgImage}')`;
-                };
-            }
-        } catch (e) {
-            console.error('Error setting hero background:', e);
-            // Fallback color
-            heroSection.style.backgroundColor = '#3b5d50';
+        // Only try imgix if available and not in fallback mode
+        if (imgixAvailable) {
+            const heroBgImage = new Image();
+            heroBgImage.onload = function() {
+                heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${heroBgImage.src}')`;
+            };
+            heroBgImage.src = `https://${imgixDomain}/${imagesBasePath}489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp`;
         }
     }
     
@@ -534,17 +542,11 @@ const ImgixLoader = (function() {
      * Main function to apply Imgix to page images
      */
     async function applyImgixToImages() {
-        // Start availability check
-        await checkImgixAvailability();
-        
-        // Force Imgix in development
-        if (!imgixAvailable && (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost')) {
-            console.warn('⚠️ Forcing Imgix in development environment');
-            imgixAvailable = true;
-        }
-        
-        // Apply to hero background first
+        // Apply the hero background first with local path for guaranteed rendering
         applyHeroBackground();
+        
+        // Then check Imgix availability for other images
+        await checkImgixAvailability();
         
         // Use Intersection Observer for lazy image processing
         if ('IntersectionObserver' in window) {
@@ -594,6 +596,10 @@ const ImgixLoader = (function() {
             // Start when DOM is ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => {
+                    // Priority 1: Set the hero image immediately for fastest LCP
+                    applyHeroBackground();
+                    
+                    // Priority 2: Process critical images
                     if ('requestIdleCallback' in window) {
                         requestIdleCallback(() => applyImgixToImages(), { timeout: 2000 });
                     } else {
@@ -601,7 +607,8 @@ const ImgixLoader = (function() {
                     }
                 });
             } else {
-                // DOM already loaded
+                // DOM already loaded - apply immediately
+                applyHeroBackground();
                 setTimeout(applyImgixToImages, 0);
             }
         },
@@ -612,7 +619,7 @@ const ImgixLoader = (function() {
     };
 })();
 
-// Initialize Imgix
+// Initialize Imgix - Start immediately for faster performance
 ImgixLoader.init();
 
 // Export utils to window

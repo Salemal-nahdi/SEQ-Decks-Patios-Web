@@ -16,8 +16,8 @@
     <!-- Cache control -->
     <meta http-equiv="Cache-Control" content="max-age=31536000">
     
-    <!-- Preload critical hero image -->
-    <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp" as="image" fetchpriority="high">
+    <!-- Preload critical hero image - FIXED URL -->
+    <link rel="preload" href="images/489134129_17999939357779643_4730226159983703706_n.jpg" as="image" fetchpriority="high">
     
     <!-- Preload logo image -->
     <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/final%20logo.png?auto=format&w=300" as="image">
@@ -46,7 +46,7 @@
             color: var(--dark);
         }
         .hero {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/489134129_17999939357779643_4730226159983703706_n.jpg');
             background-color: var(--primary); /* Fallback */
             background-size: cover;
             background-position: center;
@@ -197,14 +197,16 @@
     
     <!-- Optimized inline script to preload hero image before DOM is ready -->
     <script>
-        // Preload hero image with priority
+        // Direct path to hero image for reliable loading
         (function() {
             const img = new Image();
             img.fetchPriority = "high";
-            img.src = "https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp";
+            img.src = "images/489134129_17999939357779643_4730226159983703706_n.jpg";
             img.onload = function() {
-                const hero = document.documentElement.getAttribute('data-hero-loaded') === 'true' ? 
-                           document.querySelector('.hero') : null;
+                document.documentElement.setAttribute('data-hero-loaded', 'true');
+                
+                // Apply directly to hero element if available
+                const hero = document.querySelector('.hero');
                 if (hero) {
                     hero.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${img.src}')`;
                 }
@@ -752,15 +754,21 @@
         </div>
     </div>
 
-    <!-- Performance monitoring script -->
+    <!-- Performance monitoring script - Add hero image monitoring -->
     <script>
         // Performance monitoring
         window.addEventListener('DOMContentLoaded', () => {
             document.documentElement.setAttribute('data-hero-loaded', 'true');
             window.domLoadTime = performance.now();
             console.log("DOM Content Loaded: ", window.domLoadTime);
+            
+            // Ensure hero image is loaded
+            const heroSection = document.querySelector('.hero');
+            if (heroSection && getComputedStyle(heroSection).backgroundImage === 'none') {
+                heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("images/489134129_17999939357779643_4730226159983703706_n.jpg")';
+            }
         });
-          
+        
         window.addEventListener('load', () => {
             // Calculate and log load time
             const loadTime = performance.now();
