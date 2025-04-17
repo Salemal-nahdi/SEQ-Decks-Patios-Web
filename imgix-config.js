@@ -171,7 +171,8 @@ const heroImageParams = {
     w: 1920,
     fit: "max", 
     q: 80,
-    auto: "format,compress"
+    auto: "format,compress",
+    fm: "webp" // Use WebP format for better compression
 };
 
 // Service image parameters - slightly different aspect ratio
@@ -205,9 +206,30 @@ function getImgixUrl(imagePath, params = {}) {
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
     
-    return isImgixAvailable ? 
+    return imgixAvailable ? 
         `https://${imgixDomain}/${imagesBasePath}${imagePath}?${queryString}` : 
         `images/${imagePath}`;
+}
+
+// Function to preload critical images
+function preloadCriticalImages() {
+    // Preload hero image
+    const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
+    const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
+    
+    const preloadLink = document.createElement('link');
+    preloadLink.rel = 'preload';
+    preloadLink.as = 'image';
+    preloadLink.href = imgixHeroBg;
+    document.head.appendChild(preloadLink);
+    
+    // Preload logo
+    const logoImg = getImgixUrl('final logo.png', logoImageParams);
+    const preloadLogo = document.createElement('link');
+    preloadLogo.rel = 'preload';
+    preloadLogo.as = 'image';
+    preloadLogo.href = logoImg;
+    document.head.appendChild(preloadLogo);
 }
 
 /**
@@ -250,13 +272,14 @@ function getImageParams(img) {
  * @returns {string} Complete srcset attribute value
  */
 function generateSrcset(imagePath, baseParams = {}) {
-    // Define widths for different screen sizes
-    const widths = [320, 640, 960, 1280, 1920];
+    // Define widths for different screen sizes - optimize for fewer sizes
+    const widths = [400, 800, 1200];
     
     return widths.map(width => {
         const params = {
             ...baseParams,
-            w: width
+            w: width,
+            fm: 'webp' // Use WebP format for better compression
         };
         return `${getImgixUrl(imagePath, params)} ${width}w`;
     }).join(', ');
@@ -331,12 +354,14 @@ async function applyImgixToImages() {
     // First check if Imgix is available
     await checkImgixAvailability();
     
-    // Force Imgix to be available since the monitor shows it working
-    // This overrides the availability check if it failed
-    if (!imgixAvailable) {
-        console.warn('⚠️ Imgix check failed but forcing to continue. Please check image paths.');
+    // Force Imgix to be available only in development environments
+    if (!imgixAvailable && (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost')) {
+        console.warn('⚠️ Imgix check failed but forcing to continue in development environment. Please check image paths.');
         imgixAvailable = true;
     }
+    
+    // Preload critical images
+    preloadCriticalImages();
     
     // Process all images on the page
     document.querySelectorAll('img').forEach(img => {
@@ -409,6 +434,12 @@ async function applyImgixToImages() {
                     
                     parent.appendChild(errorOverlay);
                 }
+                
+                // Try to load the original image as fallback
+                if (originalSrc) {
+                    console.log(`🔄 Trying to load original image: ${originalSrc}`);
+                    img.src = originalSrc;
+                }
             });
         }
     });
@@ -418,8 +449,33 @@ async function applyImgixToImages() {
     if (heroSection) {
         // Use a hero image appropriate for your site
         const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
-        const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
-        heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
+        
+        // Use Imgix if available, otherwise use local image
+        const imgixHeroBg = imgixAvailable ? 
+            `https://${imgixDomain}/${imagesBasePath}${heroBgImage}?${new URLSearchParams(heroImageParams).toString()}` : 
+            `images/${heroBgImage}`;
+            
+        // Set the background image with fallback
+        try {
+            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
+            
+            // Add a backup inline style with fallback image if needed
+            if (imgixAvailable) {
+                const fallbackImg = document.createElement('img');
+                fallbackImg.style.display = 'none';
+                fallbackImg.src = imgixHeroBg;
+                fallbackImg.onerror = function() {
+                    console.error('❌ Hero background failed to load via Imgix, using fallback');
+                    heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/${heroBgImage}')`;
+                };
+                document.body.appendChild(fallbackImg);
+                setTimeout(() => fallbackImg.remove(), 5000); // Clean up after 5 seconds
+            }
+        } catch (e) {
+            console.error('Error setting hero background:', e);
+            // Fallback to a solid color if all else fails
+            heroSection.style.backgroundColor = '#3b5d50';
+        }
     }
     
     // Enhance gallery images with picture elements for art direction
@@ -448,4 +504,4 @@ window.imgixUtils = {
     generateSrcset,
     enhanceGalleryImages,
     checkImgixAvailability
-}; 
+};
