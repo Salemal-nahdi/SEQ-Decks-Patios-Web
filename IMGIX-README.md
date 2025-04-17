@@ -10,6 +10,16 @@ We've integrated Imgix to improve website performance, image quality, and respon
 
 The base Imgix domain for this project is: `seqdecks.imgix.net`
 
+### Imgix Source Setup
+
+Before the Imgix integration can work properly, you need to ensure that:
+
+1. Your Imgix account is active
+2. An Imgix source with the name `seqdecks` is created and properly configured
+3. The source is pointing to the location where your original images are stored
+
+Without proper Imgix configuration, the website will fall back to using the original images.
+
 ## Files & Components
 
 1. **imgix-config.js** - Core configuration and utility functions
@@ -17,11 +27,13 @@ The base Imgix domain for this project is: `seqdecks.imgix.net`
    - Contains different parameter sets for various image types
    - Implements responsive images with srcset
    - Adds art direction for gallery images
+   - Includes fallback mechanism for when Imgix is unavailable
 
 2. **imgix-monitor.js** - Optional performance monitoring
    - Tracks optimized images and performance gains
    - Provides debugging tools
    - Displays performance metrics with ?imgix-debug=true URL parameter
+   - Shows Imgix availability status
 
 ## Key Features
 
@@ -49,6 +61,16 @@ The base Imgix domain for this project is: `seqdecks.imgix.net`
 - Lazy loading for all images
 - Automatic browser caching configuration
 - Progressive loading for larger images
+
+### Fallback Mechanism
+
+The implementation includes a robust fallback mechanism:
+
+- Automatically detects if the Imgix domain is available and working
+- Falls back to original images if Imgix is unavailable
+- Still applies lazy loading even with original images
+- Provides clear console warnings when Imgix is not available
+- Shows status in debug widget
 
 ## Usage Notes
 
@@ -92,10 +114,27 @@ Implementing Imgix on this website results in:
 
 ## Troubleshooting
 
-If an image isn't being optimized:
-- Check the browser console for errors
-- Ensure the image path is relative, not absolute
-- Verify the image filename doesn't contain special characters
+If images aren't being optimized through Imgix:
+
+1. **Check Imgix Account Status**
+   - Verify your Imgix account is active
+   - Make sure you have a valid subscription
+
+2. **Verify Source Configuration**
+   - Ensure the source `seqdecks` is properly set up in your Imgix dashboard
+   - Check that the origin (where your original images are stored) is correctly configured
+
+3. **Debug in Console**
+   - Check browser console for Imgix-related warnings
+   - Look for specific error messages that might indicate source issues
+
+4. **Test Your Imgix Domain**
+   - Try accessing an image directly through your Imgix domain: `https://seqdecks.imgix.net/your-image.jpg`
+   - If you see a "bad_source" error, your source is not configured correctly
+
+5. **Use the Debug Mode**
+   - Add `?imgix-debug=true` to your URL to see the Imgix status widget
+   - Check if any images are being processed through Imgix
 
 ## For Developers
 

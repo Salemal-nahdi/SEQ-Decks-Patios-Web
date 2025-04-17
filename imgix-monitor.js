@@ -18,6 +18,9 @@ function measureImagePerformance() {
     // Get all images on the page
     const allImages = Array.from(document.querySelectorAll('img'));
     
+    // Check if Imgix is available (defined in the imgix-config.js file)
+    const imgixAvailable = window.imgixUtils && typeof window.imgixUtils.checkImgixAvailability === 'function';
+    
     // Extract performance data
     const imgixImages = allImages.filter(img => img.src.includes('imgix.net'));
     
@@ -32,11 +35,17 @@ function measureImagePerformance() {
         optimizationPercentage: ((imgixImages.length / allImages.length) * 100).toFixed(1),
         responsiveImages: allImages.filter(img => img.hasAttribute('srcset')).length,
         lazyLoadedImages: allImages.filter(img => img.getAttribute('loading') === 'lazy').length,
-        artDirectedImages: document.querySelectorAll('picture').length
+        artDirectedImages: document.querySelectorAll('picture').length,
+        imgixStatus: imgixImages.length > 0 ? 'ACTIVE' : 'INACTIVE'
     };
     
     // Log performance data
-    console.log('%c 🚀 Imgix Performance Report', 'font-size: 16px; font-weight: bold; color: #3b5d50;');
+    if (imgixImages.length > 0) {
+        console.log('%c 🚀 Imgix Performance Report', 'font-size: 16px; font-weight: bold; color: #3b5d50;');
+    } else {
+        console.log('%c ⚠️ Imgix Not Active - Using Original Images', 'font-size: 16px; font-weight: bold; color: #e74c3c;');
+        console.log('To use Imgix, please make sure the Imgix source "seqdecks.imgix.net" is properly configured.');
+    }
     console.table(performanceData);
     
     // Add a simple UI widget if requested
@@ -65,8 +74,14 @@ function showPerformanceWidget(data) {
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     `;
     
+    // Set color based on Imgix status
+    const statusColor = data.imgixStatus === 'ACTIVE' ? '#2ecc71' : '#e74c3c';
+    
     widget.innerHTML = `
         <h3 style="margin: 0 0 10px; font-size: 16px;">Imgix Performance</h3>
+        <div style="margin-bottom: 10px;">
+            <strong>Status: <span style="color: ${statusColor}">${data.imgixStatus}</span></strong>
+        </div>
         <div style="margin-bottom: 5px;">Images: ${data.optimizedImages}/${data.totalImages} (${data.optimizationPercentage}%)</div>
         <div style="margin-bottom: 5px;">Responsive: ${data.responsiveImages}</div>
         <div style="margin-bottom: 5px;">Lazy-loaded: ${data.lazyLoadedImages}</div>

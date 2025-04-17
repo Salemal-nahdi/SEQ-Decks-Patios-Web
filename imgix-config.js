@@ -6,6 +6,36 @@
 // Configure Imgix domain
 const imgixDomain = "seqdecks.imgix.net";
 
+// Track Imgix availability
+let imgixAvailable = true;
+
+// Check if Imgix is working
+function checkImgixAvailability() {
+    return new Promise((resolve) => {
+        const testImage = new Image();
+        testImage.onload = function() {
+            imgixAvailable = true;
+            console.log('✅ Imgix is available and working!');
+            resolve(true);
+        };
+        testImage.onerror = function() {
+            imgixAvailable = false;
+            console.warn('⚠️ Imgix domain not available. Using original images as fallback.');
+            resolve(false);
+        };
+        testImage.src = `https://${imgixDomain}/final%20logo.png?w=1&h=1&auto=format`;
+        
+        // Timeout after 3 seconds
+        setTimeout(() => {
+            if (testImage.complete === false) {
+                imgixAvailable = false;
+                console.warn('⚠️ Imgix availability check timed out. Using original images as fallback.');
+                resolve(false);
+            }
+        }, 3000);
+    });
+}
+
 // Gallery-specific image parameters
 const galleryImageParams = {
     w: 800,
@@ -52,6 +82,11 @@ const serviceImageParams = {
  * @returns {string} Complete Imgix URL
  */
 function getImgixUrl(imagePath, params = {}) {
+    // If Imgix is not available, return the original image path
+    if (!imgixAvailable) {
+        return imagePath;
+    }
+    
     // Default parameters for better performance
     const defaultParams = {
         auto: "format,compress",
@@ -109,6 +144,11 @@ function getImageParams(img) {
  * @returns {string} Complete srcset attribute value
  */
 function generateSrcset(imagePath, baseParams = {}) {
+    // If Imgix is not available, don't generate srcset
+    if (!imgixAvailable) {
+        return '';
+    }
+    
     // Define widths for different screen sizes
     const widths = [320, 640, 960, 1280, 1920];
     
@@ -127,6 +167,11 @@ function generateSrcset(imagePath, baseParams = {}) {
  * for better mobile art direction
  */
 function enhanceGalleryImages() {
+    // Skip if Imgix isn't available
+    if (!imgixAvailable) {
+        return;
+    }
+    
     // Only apply to gallery items
     document.querySelectorAll('.gallery-item img').forEach(img => {
         // Skip if already processed or using external sources
@@ -181,11 +226,14 @@ function enhanceGalleryImages() {
 /**
  * Apply Imgix to all images on the page
  */
-function applyImgixToImages() {
+async function applyImgixToImages() {
+    // First check if Imgix is available
+    await checkImgixAvailability();
+    
     document.querySelectorAll('img').forEach(img => {
         const originalSrc = img.getAttribute('src');
         if (originalSrc && !originalSrc.includes(imgixDomain)) {
-            // Skip external images or images already using Imgix
+            // Skip external images
             if (!originalSrc.startsWith('http')) {
                 // Save original source for potential future use
                 img.setAttribute('data-original-src', originalSrc);
@@ -203,16 +251,18 @@ function applyImgixToImages() {
                     }
                 }
                 
-                // Set the src attribute to the default Imgix URL
-                img.setAttribute('src', getImgixUrl(originalSrc, params));
-                
-                // Add srcset for responsive images (except logos)
-                if (!params.hasOwnProperty('bg') || params.bg !== 'transparent') {
-                    img.setAttribute('srcset', generateSrcset(originalSrc, params));
-                    img.setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
+                if (imgixAvailable) {
+                    // Set the src attribute to the Imgix URL
+                    img.setAttribute('src', getImgixUrl(originalSrc, params));
+                    
+                    // Add srcset for responsive images (except logos)
+                    if (!params.hasOwnProperty('bg') || params.bg !== 'transparent') {
+                        img.setAttribute('srcset', generateSrcset(originalSrc, params));
+                        img.setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
+                    }
                 }
                 
-                // Add responsive loading behavior
+                // Add responsive loading behavior regardless of Imgix availability
                 img.setAttribute('loading', 'lazy');
             }
         }
@@ -220,7 +270,7 @@ function applyImgixToImages() {
     
     // Update the hero background image in CSS if it exists
     const heroSection = document.querySelector('.hero');
-    if (heroSection) {
+    if (heroSection && imgixAvailable) {
         const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
         const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
         heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
@@ -228,7 +278,9 @@ function applyImgixToImages() {
     
     // Enhance gallery images with picture elements for art direction
     // Run this after basic Imgix processing
-    setTimeout(enhanceGalleryImages, 100);
+    if (imgixAvailable) {
+        setTimeout(enhanceGalleryImages, 100);
+    }
 }
 
 // Initialize when the DOM is fully loaded
@@ -239,5 +291,6 @@ window.imgixUtils = {
     getImgixUrl,
     applyImgixToImages,
     generateSrcset,
-    enhanceGalleryImages
+    enhanceGalleryImages,
+    checkImgixAvailability
 }; 
