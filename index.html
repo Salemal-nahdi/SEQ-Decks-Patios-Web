@@ -5,22 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEQ Decks & Patios | Quality Outdoor Living Spaces</title>
     
-    <!-- Performance optimizations -->
+    <!-- Priority meta tags for performance -->
     <meta http-equiv="x-dns-prefetch-control" content="on">
     <link rel="dns-prefetch" href="//seqdecksandpatios.imgix.net">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://seqdecksandpatios.imgix.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Cache control -->
     <meta http-equiv="Cache-Control" content="max-age=31536000">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format,compress&fm=webp" as="image" type="image/webp" fetchpriority="high">
-    <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/final%20logo.png?auto=format,compress&w=300" as="image">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    <!-- Preload critical hero image -->
+    <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp" as="image" fetchpriority="high">
     
-    <!-- Critical CSS inline (to reduce render-blocking) -->
+    <!-- Preload logo image -->
+    <link rel="preload" href="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/final%20logo.png?auto=format&w=300" as="image">
+    
+    <!-- Critical CSS inline -->
     <style>
         /* Critical path CSS */
         :root {
@@ -35,93 +37,179 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
             line-height: 1.6;
+            text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
+            width: 100%;
+            color: var(--dark);
         }
         .hero {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
+            background-color: var(--primary); /* Fallback */
             background-size: cover;
             background-position: center;
             color: var(--white);
             padding: 180px 0;
             text-align: center;
             position: relative;
-            will-change: transform; /* Hint for browser optimizations */
-            contain: layout paint; /* Improve paint performance */
+            will-change: transform;
+            contain: layout paint;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
         header {
             background-color: var(--white);
             position: sticky;
             top: 0;
             z-index: 100;
-            contain: layout; /* Improve paint performance */
+            contain: layout;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        /* Minimize CLS (Cumulative Layout Shift) */
+        /* Logo & Navigation */
+        .logo img {
+            max-height: 70px;
+            width: auto;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav ul li {
+            margin-left: 20px;
+        }
+        nav ul li a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .hamburger {
+            display: none;
+            cursor: pointer;
+        }
+        
+        /* Hero section & buttons */
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary);
+            color: var(--dark);
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #e5ad1c;
+        }
+        
+        /* Layout for smaller screens */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                padding: 15px 20px;
+            }
+            nav ul {
+                flex-direction: column;
+                display: none;
+            }
+            nav ul.show {
+                display: flex;
+            }
+            .hamburger {
+                display: block;
+            }
+            .hero {
+                padding: 100px 0;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Minimize CLS */
         img {
             display: block;
             max-width: 100%;
             height: auto;
+            aspect-ratio: attr(width) / attr(height);
         }
         
-        /* Optimize animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-50px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Header layout */
+        header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .logo, .company-name {
+            display: flex;
+            align-items: center;
+        }
+        .company-name h1 {
+            margin: 0 0 0 15px;
+            font-size: 1.5rem;
         }
         
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .hero h1, .hero p, .hero .btn {
-            animation-fill-mode: backwards;
-            will-change: transform, opacity;
+        /* Fixed height placeholders to minimize CLS */
+        .feature, .service-item, .process-step, .gallery-item {
+            contain: layout paint style;
         }
     </style>
     
-    <!-- Deferred CSS loading -->
+    <!-- Preconnect to Font Awesome CDN -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    
+    <!-- Non-critical CSS loaded with media=print trick -->
     <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="styles.css"></noscript>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    
+    <!-- Font Awesome loaded with async approach -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          media="print" onload="this.media='all'" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
     
-    <!-- Imgix Integration - only load what's needed for critical rendering path -->
+    <!-- Optimized inline script to preload hero image before DOM is ready -->
     <script>
-        // Inline critical Imgix functions for faster loading
-        let imgixAvailable = false;
-        function preloadHeroImage() {
+        // Preload hero image with priority
+        (function() {
             const img = new Image();
-            img.src = "https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format,compress&fm=webp";
+            img.fetchPriority = "high";
+            img.src = "https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp";
             img.onload = function() {
-                const heroSection = document.querySelector('.hero');
-                if (heroSection) {
-                    heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${img.src}')`;
-                    imgixAvailable = true;
+                const hero = document.documentElement.getAttribute('data-hero-loaded') === 'true' ? 
+                           document.querySelector('.hero') : null;
+                if (hero) {
+                    hero.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${img.src}')`;
                 }
             };
-            img.onerror = function() {
-                const heroSection = document.querySelector('.hero');
-                if (heroSection) {
-                    heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('images/489134129_17999939357779643_4730226159983703706_n.jpg')`;
-                }
-            };
-        }
-        
-        // Execute once DOM is interactive
-        document.addEventListener('DOMContentLoaded', function() {
-            preloadHeroImage();
-        });
+        })();
     </script>
 </head>
 <body>
@@ -146,7 +234,11 @@
         <div class="container">
             <div class="logo">
                 <a href="#top">
-                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/final%20logo.png?auto=format,compress&w=300" alt="SEQ Decks & Patios Logo">
+                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/final%20logo.png?auto=format&w=300" 
+                         alt="SEQ Decks & Patios Logo"
+                         width="300" height="104"
+                         loading="eager"
+                         fetchpriority="high">
                 </a>
             </div>
             <div class="company-name">
@@ -206,11 +298,13 @@
             <h2 class="section-title">About SEQ Decks & Patios</h2>
             <div class="about-content">
                 <div class="about-image">
-                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=800&auto=format,compress" 
-                         srcset="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=400&auto=format,compress 400w,
-                                 https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=800&auto=format,compress 800w,
-                                 https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=1200&auto=format,compress 1200w"
+                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=800&auto=format&q=75" 
+                         srcset="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=400&auto=format&q=75 400w,
+                                 https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488605597_18000004361779643_122080300654879565_n.jpg?w=800&auto=format&q=75 800w"
                          sizes="(max-width: 768px) 100vw, 50vw"
+                         width="800" height="600"
+                         loading="lazy"
+                         decoding="async"
                          alt="SEQ Decks & Patios Team">
                 </div>
                 <div class="about-text">
@@ -245,7 +339,11 @@
             
             <div class="service-item">
                 <div class="service-image">
-                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488303960_17999939324779643_614330164914991996_n.jpg?w=800&auto=format,compress" alt="Custom Decks">
+                    <img src="https://seqdecksandpatios.imgix.net/images/seaqdecksandpatios/488303960_17999939324779643_614330164914991996_n.jpg?w=800&auto=format&q=75" 
+                         width="800" height="600"
+                         loading="lazy"
+                         decoding="async"
+                         alt="Custom Decks">
                 </div>
                 <div class="service-text">
                     <h3>Custom Decks</h3>
@@ -654,159 +752,167 @@
         </div>
     </div>
 
-    <!-- Move non-critical scripts to the end of body -->
-    <script src="imgix-config.js" defer></script>
-    <script src="imgix-monitor.js" defer></script>
-    
-    <!-- Optimize main script -->
+    <!-- Performance monitoring script -->
     <script>
-        // Use requestIdleCallback for non-critical operations
-        function deferredInit() {
-            // Mobile menu toggle with optimized event delegation
-            const hamburger = document.querySelector('.hamburger');
-            const navMenu = document.querySelector('nav ul');
+        // Performance monitoring
+        window.addEventListener('DOMContentLoaded', () => {
+            document.documentElement.setAttribute('data-hero-loaded', 'true');
+            window.domLoadTime = performance.now();
+            console.log("DOM Content Loaded: ", window.domLoadTime);
+        });
+          
+        window.addEventListener('load', () => {
+            // Calculate and log load time
+            const loadTime = performance.now();
+            console.log("Total Load Time: ", loadTime);
             
-            if (hamburger && navMenu) {
-                hamburger.addEventListener('click', function() {
-                    navMenu.classList.toggle('show');
-                    this.classList.toggle('active');
-                });
-            }
-    
-            // Smooth scrolling for anchor links - optimized implementation
-            document.addEventListener('click', function(e) {
-                const link = e.target.closest('a[href^="#"]');
-                if (link) {
-                    e.preventDefault();
-                    const targetId = link.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    
-                    if (targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                        
-                        // Close mobile menu if open
-                        if (navMenu.classList.contains('show')) {
-                            navMenu.classList.remove('show');
-                            hamburger.classList.remove('active');
-                        }
-                    }
+            // Log navigation timing info
+            if (performance.getEntriesByType) {
+                const navTiming = performance.getEntriesByType('navigation')[0];
+                if (navTiming) {
+                    console.log("Time to First Byte:", navTiming.responseStart - navTiming.requestStart);
+                    console.log("DOM Interactive:", navTiming.domInteractive);
+                    console.log("DOM Complete:", navTiming.domComplete);
                 }
-            });
-    
-            // Optimize the scroll event listener
-            let lastKnownScrollPosition = 0;
-            let ticking = false;
-            
-            function handleScroll(scrollPos) {
-                const sections = document.querySelectorAll('section[id]');
                 
-                sections.forEach(current => {
-                    const sectionHeight = current.offsetHeight;
-                    const sectionTop = current.offsetTop - 100;
-                    const sectionId = current.getAttribute('id');
-                    const navLink = document.querySelector('nav a[href*=' + sectionId + ']');
-                    
-                    if (scrollPos > sectionTop && scrollPos <= sectionTop + sectionHeight) {
-                        navLink && navLink.classList.add('active');
-                    } else {
-                        navLink && navLink.classList.remove('active');
+                // Log resource timing info for slow resources
+                const resources = performance.getEntriesByType('resource');
+                const slowResources = resources
+                  .filter(r => r.duration > 500)
+                  .sort((a, b) => b.duration - a.duration)
+                  .slice(0, 5);
+                  
+                console.log("Slow resources (>500ms):", slowResources.map(r => ({
+                  name: r.name.split('/').pop(),
+                  type: r.initiatorType,
+                  duration: Math.round(r.duration)
+                })));
+            }
+        });
+    </script>
+
+    <!-- Move scripts to end of body, load Imgix config optimally -->
+    <script src="imgix-config.js" defer></script>
+    
+    <!-- Optimized main script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('nav ul');
+        
+        if (hamburger && navMenu) {
+            hamburger.addEventListener('click', function() {
+                navMenu.classList.toggle('show');
+                this.classList.toggle('active');
+            });
+        }
+
+        // Intersection Observer for lazy loading elements
+        if ('IntersectionObserver' in window) {
+            const lazyItems = document.querySelectorAll('.service-item, .gallery-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
                     }
                 });
-            }
+            }, {
+                rootMargin: '100px',
+            });
             
-            window.addEventListener('scroll', function() {
-                lastKnownScrollPosition = window.pageYOffset;
+            lazyItems.forEach(item => {
+                observer.observe(item);
+            });
+        }
+
+        // Smooth scrolling with optimized implementation
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[href^="#"]');
+            if (link) {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
                 
-                if (!ticking) {
-                    window.requestAnimationFrame(function() {
-                        handleScroll(lastKnownScrollPosition);
-                        ticking = false;
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                     
-                    ticking = true;
-                }
-            });
-            
-            // Quote Modal with optimized event handling
-            const modal = document.getElementById("quoteModal");
-            const btn = document.getElementById("openQuoteBtn");
-            const span = document.querySelector(".close-modal");
-            
-            if (btn && modal) {
-                btn.onclick = function() {
-                    modal.style.display = "block";
-                    document.body.classList.add("modal-open");
+                    // Close mobile menu if open
+                    if (navMenu && navMenu.classList.contains('show')) {
+                        navMenu.classList.remove('show');
+                        hamburger && hamburger.classList.remove('active');
+                    }
                 }
             }
+        });
+
+        // Optimize the scroll event listener with requestAnimationFrame
+        let lastKnownScrollPosition = 0;
+        let ticking = false;
+        
+        function updateActiveNav() {
+            const scrollPos = window.pageYOffset;
+            const sections = document.querySelectorAll('section[id]');
             
-            if (span && modal) {
-                span.onclick = function() {
+            sections.forEach(current => {
+                const sectionHeight = current.offsetHeight;
+                const sectionTop = current.offsetTop - 100;
+                const sectionId = current.getAttribute('id');
+                const navLink = document.querySelector('nav a[href*=' + sectionId + ']');
+                
+                if (scrollPos > sectionTop && scrollPos <= sectionTop + sectionHeight) {
+                    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+                    navLink && navLink.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', function() {
+            lastKnownScrollPosition = window.pageYOffset;
+            
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    updateActiveNav();
+                    ticking = false;
+                });
+                
+                ticking = true;
+            }
+        });
+        
+        // Quote Modal with optimized event handling
+        const modal = document.getElementById("quoteModal");
+        const btn = document.getElementById("openQuoteBtn");
+        const span = document.querySelector(".close-modal");
+        
+        if (btn && modal) {
+            btn.addEventListener('click', function() {
+                modal.style.display = "block";
+                document.body.classList.add("modal-open");
+            });
+        }
+        
+        if (span && modal) {
+            span.addEventListener('click', function() {
+                modal.style.display = "none";
+                document.body.classList.remove("modal-open");
+            });
+        }
+        
+        if (modal) {
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
                     modal.style.display = "none";
                     document.body.classList.remove("modal-open");
                 }
-            }
-            
-            if (modal) {
-                window.addEventListener('click', function(event) {
-                    if (event.target === modal) {
-                        modal.style.display = "none";
-                        document.body.classList.remove("modal-open");
-                    }
-                });
-            }
-            
-            // Event delegation for quote buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.closest('.hero .btn, .cta-section .btn')) {
-                    const button = e.target.closest('.hero .btn, .cta-section .btn');
-                    if (button.getAttribute('href') === '#contact' && modal) {
-                        e.preventDefault();
-                        modal.style.display = "block";
-                        document.body.classList.add("modal-open");
-                    }
-                }
             });
-            
-            // Form submission handling
-            const contactForm = document.getElementById('contactForm');
-            const quickQuoteForm = document.getElementById('quickQuoteForm');
-            
-            function handleFormSubmission(form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const formData = new FormData(form);
-                    
-                    fetch('/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams(formData).toString()
-                    })
-                    .then(() => {
-                        // Redirect to thank-you page with current URL as base
-                        window.location.href = window.location.href.split('/').slice(0, -1).join('/') + '/thank-you.html';
-                    })
-                    .catch(error => {
-                        console.error('Form submission error:', error);
-                        // Fallback redirect
-                        window.location.href = 'thank-you.html';
-                    });
-                });
-            }
-            
-            if (contactForm) handleFormSubmission(contactForm);
-            if (quickQuoteForm) handleFormSubmission(quickQuoteForm);
         }
-        
-        // Use requestIdleCallback to run non-critical code when the browser is idle
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(deferredInit);
-        } else {
-            // Fallback for browsers that don't support requestIdleCallback
-            setTimeout(deferredInit, 200);
-        }
+    });
     </script>
 </body>
 </html> 
