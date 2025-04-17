@@ -72,11 +72,11 @@ function checkImgixAvailability() {
             };
             
             // Try direct path without imagesBasePath
-            fallbackImage.src = `https://${imgixDomain}/images/seaqdecksandpatios/final-logo.png?w=1&h=1&auto=format&s=1`;
+            fallbackImage.src = `https://${imgixDomain}/images/seaqdecksandpatios/final%20logo.png?w=1&h=1&auto=format&s=1`;
         };
         
         // Try to load a test image from the Imgix domain
-        testImage.src = `https://${imgixDomain}/${imagesBasePath}final-logo.png?w=1&h=1&auto=format&s=1`;
+        testImage.src = `https://${imgixDomain}/${imagesBasePath}final%20logo.png?w=1&h=1&auto=format&s=1`;
         
         // Timeout after 5 seconds
         timeoutId = setTimeout(() => {
