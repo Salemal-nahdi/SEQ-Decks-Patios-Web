@@ -3,41 +3,125 @@
  * This file provides a central place to manage Imgix settings for the website
  */
 
-// Configure Imgix domain
-const imgixDomain = "imagesseqdecksandpatios.imgix.net";
+// Configure Imgix domain - use seqdecksandpatios.imgix.net as the domain
+const imgixDomain = "seqdecksandpatios.imgix.net";
 
 // Path to the images directory in the GitHub repository
 const imagesBasePath = "images/seaqdecksandpatios/";
 
 // Track Imgix availability
-let imgixAvailable = true;
+let imgixAvailable = false;
+let imgixChecked = false;
 
-// Check if Imgix is working
+// Check if Imgix is working with more robust verification
 function checkImgixAvailability() {
     return new Promise((resolve) => {
+        if (imgixChecked) {
+            resolve(imgixAvailable);
+            return;
+        }
+
+        console.log('🔍 Testing Imgix availability...');
+        
         const testImage = new Image();
+        let timeoutId;
+        
         testImage.onload = function() {
+            clearTimeout(timeoutId);
             imgixAvailable = true;
+            imgixChecked = true;
             console.log('✅ Imgix is available and working!');
+            
+            // Add notification to page if in development mode
+            if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+                showImgixStatus(true);
+            }
+            
             resolve(true);
         };
+        
         testImage.onerror = function() {
+            clearTimeout(timeoutId);
             imgixAvailable = false;
-            console.warn('⚠️ Imgix domain not available. Using original images as fallback.');
+            imgixChecked = true;
+            console.error('❌ Imgix domain not available. Site will not show images properly.');
+            
+            // Always show error in preview/development environments
+            showImgixStatus(false);
+            
             resolve(false);
         };
-        // Try to load a test image from the repository
-        testImage.src = `https://${imgixDomain}/${imagesBasePath}final-logo.png?w=1&h=1&auto=format`;
         
-        // Timeout after 3 seconds
-        setTimeout(() => {
-            if (testImage.complete === false) {
-                imgixAvailable = false;
-                console.warn('⚠️ Imgix availability check timed out. Using original images as fallback.');
-                resolve(false);
-            }
-        }, 3000);
+        // Try to load a test image from the Imgix domain
+        testImage.src = `https://${imgixDomain}/${imagesBasePath}final-logo.png?w=1&h=1&auto=format&s=1`;
+        
+        // Timeout after 5 seconds
+        timeoutId = setTimeout(() => {
+            imgixAvailable = false;
+            imgixChecked = true;
+            console.error('⏱️ Imgix availability check timed out. Site will not show images properly.');
+            
+            showImgixStatus(false, true);
+            
+            resolve(false);
+        }, 5000);
     });
+}
+
+// Function to show Imgix status on the page
+function showImgixStatus(available, timeout = false) {
+    // Create status element if it doesn't exist
+    const existingStatus = document.getElementById('imgix-status');
+    if (existingStatus) {
+        existingStatus.remove();
+    }
+    
+    const statusEl = document.createElement('div');
+    statusEl.id = 'imgix-status';
+    statusEl.style.position = 'fixed';
+    statusEl.style.bottom = '10px';
+    statusEl.style.right = '10px';
+    statusEl.style.padding = '10px 15px';
+    statusEl.style.borderRadius = '5px';
+    statusEl.style.color = '#fff';
+    statusEl.style.fontSize = '14px';
+    statusEl.style.fontWeight = 'bold';
+    statusEl.style.zIndex = '9999';
+    statusEl.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+    
+    if (available) {
+        statusEl.style.backgroundColor = '#4CAF50';
+        statusEl.innerHTML = '✅ Imgix Active - Images Optimized';
+        
+        // Auto-hide after 5 seconds if successful
+        setTimeout(() => {
+            if (statusEl.parentNode) {
+                statusEl.style.opacity = '0';
+                statusEl.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => statusEl.remove(), 500);
+            }
+        }, 5000);
+    } else {
+        statusEl.style.backgroundColor = '#F44336';
+        if (timeout) {
+            statusEl.innerHTML = '❌ Imgix Timed Out - Check your configuration';
+        } else {
+            statusEl.innerHTML = '❌ Imgix Not Available - Check your configuration';
+        }
+        
+        // Add link to documentation
+        const link = document.createElement('a');
+        link.href = 'https://docs.imgix.com/setup/quick-start';
+        link.target = '_blank';
+        link.style.color = '#fff';
+        link.style.textDecoration = 'underline';
+        link.style.display = 'block';
+        link.style.marginTop = '5px';
+        link.textContent = 'View Imgix Setup Guide';
+        statusEl.appendChild(link);
+    }
+    
+    document.body.appendChild(statusEl);
 }
 
 // Gallery-specific image parameters
@@ -86,8 +170,9 @@ const serviceImageParams = {
  * @returns {string} Complete Imgix URL
  */
 function getImgixUrl(imagePath, params = {}) {
-    // If Imgix is not available, return the original image path
-    if (!imgixAvailable) {
+    // If we've checked Imgix and it's not available, return the original path
+    if (imgixChecked && !imgixAvailable) {
+        console.warn(`⚠️ Imgix not available for: ${imagePath}`);
         return imagePath;
     }
     
@@ -105,12 +190,11 @@ function getImgixUrl(imagePath, params = {}) {
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
     
-    // Check if the image path already contains the images base path
-    const fullImagePath = imagePath.includes(imagesBasePath) ? 
-        imagePath : 
-        `${imagesBasePath}${imagePath}`;
-        
-    return `https://${imgixDomain}/${fullImagePath}${queryString ? '?' + queryString : ''}`;
+    // Extract just the filename if the path contains a directory structure
+    const filename = imagePath.includes('/') ? imagePath.split('/').pop() : imagePath;
+    
+    // Build the full Imgix URL
+    return `https://${imgixDomain}/${imagesBasePath}${filename}${queryString ? '?' + queryString : ''}`;
 }
 
 /**
@@ -153,11 +237,6 @@ function getImageParams(img) {
  * @returns {string} Complete srcset attribute value
  */
 function generateSrcset(imagePath, baseParams = {}) {
-    // If Imgix is not available, don't generate srcset
-    if (!imgixAvailable) {
-        return '';
-    }
-    
     // Define widths for different screen sizes
     const widths = [320, 640, 960, 1280, 1920];
     
@@ -184,7 +263,7 @@ function enhanceGalleryImages() {
     // Only apply to gallery items
     document.querySelectorAll('.gallery-item img').forEach(img => {
         // Skip if already processed or using external sources
-        if (img.hasAttribute('data-imgix-processed') || img.src.startsWith('http')) {
+        if (img.hasAttribute('data-imgix-processed')) {
             return;
         }
         
@@ -239,57 +318,110 @@ async function applyImgixToImages() {
     // First check if Imgix is available
     await checkImgixAvailability();
     
+    // Skip processing if Imgix is not available
+    if (!imgixAvailable) {
+        console.warn('⚠️ Imgix not available. Images will not be optimized.');
+        return;
+    }
+    
+    // Process all images on the page
     document.querySelectorAll('img').forEach(img => {
         const originalSrc = img.getAttribute('src');
+        
+        // Skip already processed Imgix images
         if (originalSrc && !originalSrc.includes(imgixDomain)) {
-            // Skip external images
-            if (!originalSrc.startsWith('http')) {
-                // Save original source for potential future use
-                img.setAttribute('data-original-src', originalSrc);
-                
-                // Get base parameters for this image type
-                const params = getImageParams(img);
-                
-                // Check for custom parameters in data attribute
-                if (img.hasAttribute('data-imgix-params')) {
-                    try {
-                        const customParams = JSON.parse(img.getAttribute('data-imgix-params'));
-                        Object.assign(params, customParams);
-                    } catch (e) {
-                        console.warn('Invalid data-imgix-params format:', e);
-                    }
+            // Save original source for potential future use
+            img.setAttribute('data-original-src', originalSrc);
+            
+            // Get base parameters for this image type
+            const params = getImageParams(img);
+            
+            // Check for custom parameters in data attribute
+            if (img.hasAttribute('data-imgix-params')) {
+                try {
+                    const customParams = JSON.parse(img.getAttribute('data-imgix-params'));
+                    Object.assign(params, customParams);
+                } catch (e) {
+                    console.warn('Invalid data-imgix-params format:', e);
                 }
-                
-                if (imgixAvailable) {
-                    // Set the src attribute to the Imgix URL
-                    img.setAttribute('src', getImgixUrl(originalSrc, params));
-                    
-                    // Add srcset for responsive images (except logos)
-                    if (!params.hasOwnProperty('bg') || params.bg !== 'transparent') {
-                        img.setAttribute('srcset', generateSrcset(originalSrc, params));
-                        img.setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
-                    }
-                }
-                
-                // Add responsive loading behavior regardless of Imgix availability
-                img.setAttribute('loading', 'lazy');
             }
+            
+            // Get filename only - strip any path information
+            const filename = originalSrc.includes('/') ? originalSrc.split('/').pop() : originalSrc;
+            
+            // Set the src attribute to the Imgix URL
+            const imgixUrl = getImgixUrl(filename, params);
+            img.setAttribute('src', imgixUrl);
+            
+            // Add srcset for responsive images (except logos)
+            if (!params.hasOwnProperty('bg') || params.bg !== 'transparent') {
+                img.setAttribute('srcset', generateSrcset(filename, params));
+                img.setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
+            }
+            
+            // Add responsive loading behavior
+            img.setAttribute('loading', 'lazy');
+            
+            // Add error handler that logs which images fail to load
+            img.addEventListener('error', function() {
+                console.error(`❌ Failed to load image: ${filename} via Imgix`);
+                
+                // Mark this specific image as failed
+                img.classList.add('imgix-load-failed');
+                
+                // If in development environment, add visible error indicator
+                if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+                    const errorOverlay = document.createElement('div');
+                    errorOverlay.style.position = 'absolute';
+                    errorOverlay.style.top = '0';
+                    errorOverlay.style.left = '0';
+                    errorOverlay.style.width = '100%';
+                    errorOverlay.style.height = '100%';
+                    errorOverlay.style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
+                    errorOverlay.style.display = 'flex';
+                    errorOverlay.style.justifyContent = 'center';
+                    errorOverlay.style.alignItems = 'center';
+                    errorOverlay.style.color = 'white';
+                    errorOverlay.style.fontWeight = 'bold';
+                    errorOverlay.style.textAlign = 'center';
+                    errorOverlay.style.padding = '10px';
+                    errorOverlay.textContent = `Image load failed: ${filename}`;
+                    
+                    // Add positioned wrapper if needed
+                    const parent = img.parentElement;
+                    if (window.getComputedStyle(parent).position === 'static') {
+                        parent.style.position = 'relative';
+                    }
+                    
+                    parent.appendChild(errorOverlay);
+                }
+            });
         }
     });
     
     // Update the hero background image in CSS if it exists
     const heroSection = document.querySelector('.hero');
-    if (heroSection && imgixAvailable) {
+    if (heroSection) {
+        // Use a hero image appropriate for your site
         const heroBgImage = '489134129_17999939357779643_4730226159983703706_n.jpg';
         const imgixHeroBg = getImgixUrl(heroBgImage, heroImageParams);
         heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${imgixHeroBg}')`;
     }
     
     // Enhance gallery images with picture elements for art direction
-    // Run this after basic Imgix processing
-    if (imgixAvailable) {
-        setTimeout(enhanceGalleryImages, 100);
-    }
+    setTimeout(enhanceGalleryImages, 100);
+    
+    // Report stats after all images are processed
+    setTimeout(() => {
+        const totalImages = document.querySelectorAll('img').length;
+        const failedImages = document.querySelectorAll('img.imgix-load-failed').length;
+        
+        console.log(`📊 Imgix Image Report: ${totalImages - failedImages}/${totalImages} images successfully optimized`);
+        
+        if (failedImages > 0) {
+            console.warn(`⚠️ ${failedImages} images failed to load via Imgix`);
+        }
+    }, 2000);
 }
 
 // Initialize when the DOM is fully loaded
