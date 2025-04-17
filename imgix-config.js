@@ -9,6 +9,9 @@ const imgixDomain = "seqdecksandpatios.imgix.net";
 // Path to the images directory in the GitHub repository
 const imagesBasePath = "images/seaqdecksandpatios/";
 
+// Hero image constant - single source of truth
+const HERO_IMAGE_PATH = "/489134129_17999939357779643_4730226159983703706_n.jpg";
+
 // Track Imgix availability - use a global module pattern to avoid polluting global scope
 const ImgixLoader = (function() {
     // Private variables
@@ -65,7 +68,7 @@ const ImgixLoader = (function() {
         
         // Special case for hero image - always use local path for guaranteed loading
         if (imagePath.includes('489134129_17999939357779643_4730226159983703706_n.jpg')) {
-            return 'images/' + imagePath.split('/').pop();
+            return HERO_IMAGE_PATH;
         }
         
         // Generate cache key for exact parameter combination
@@ -119,6 +122,9 @@ const ImgixLoader = (function() {
         }
         
         console.log('🔍 Testing Imgix availability...');
+        
+        // Apply the hero image directly and immediately
+        updateHeroImageDirectly();
         
         // Create new promise for availability check
         imgixCheckPromise = new Promise((resolve) => {
@@ -176,11 +182,8 @@ const ImgixLoader = (function() {
                     imgixCheckPromise = null;
                     console.error('❌ Imgix domain not available. Using fallback image paths.');
                     
-                    // Set hero background directly with local path
-                    const heroSection = document.querySelector('.hero');
-                    if (heroSection) {
-                        heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
-                    }
+                    // Update hero directly again
+                    updateHeroImageDirectly();
                     
                     // Show error notification
                     showImgixStatus(false);
@@ -198,18 +201,15 @@ const ImgixLoader = (function() {
             // Start loading test image with cache buster
             testImage.src = `https://${imgixDomain}/${imagesBasePath}final%20logo.png?w=1&h=1&s=${Date.now()}`;
             
-            // Set timeout for 2.5 seconds
+            // Set timeout for 2 seconds
             timeoutId = setTimeout(() => {
                 imgixAvailable = false;
                 imgixChecked = true;
                 imgixCheckPromise = null;
                 console.error('⏱️ Imgix availability check timed out. Using fallback image paths.');
                 
-                // Set hero background directly with local path
-                const heroSection = document.querySelector('.hero');
-                if (heroSection) {
-                    heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
-                }
+                // Update hero directly again
+                updateHeroImageDirectly();
                 
                 // Show timeout notification
                 showImgixStatus(false, true);
@@ -222,6 +222,17 @@ const ImgixLoader = (function() {
         });
         
         return imgixCheckPromise;
+    }
+    
+    /**
+     * Helper function to directly update the hero image
+     * This is called multiple times to ensure the hero image is always set
+     */
+    function updateHeroImageDirectly() {
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${HERO_IMAGE_PATH}')`;
+        }
     }
     
     /**
@@ -456,17 +467,18 @@ const ImgixLoader = (function() {
      * Update hero background image
      */
     function applyHeroBackground() {
-        const heroSection = document.querySelector('.hero');
-        if (!heroSection) return;
-        
-        // Direct reference to local hero image for guaranteed loading
-        heroSection.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(images/489134129_17999939357779643_4730226159983703706_n.jpg)';
+        // Direct reference to hero image for guaranteed loading
+        updateHeroImageDirectly();
         
         // Only try imgix if available and not in fallback mode
         if (imgixAvailable) {
             const heroBgImage = new Image();
             heroBgImage.onload = function() {
-                heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${heroBgImage.src}')`;
+                // Hero is still there, we can update it with the optimized version
+                const heroSection = document.querySelector('.hero');
+                if (heroSection) {
+                    heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${heroBgImage.src}')`;
+                }
             };
             heroBgImage.src = `https://${imgixDomain}/${imagesBasePath}489134129_17999939357779643_4730226159983703706_n.jpg?w=1920&fit=max&q=80&auto=format&fm=webp`;
         }
@@ -595,6 +607,9 @@ const ImgixLoader = (function() {
         init: function() {
             // Start when DOM is ready
             if (document.readyState === 'loading') {
+                // Set hero image immediately
+                updateHeroImageDirectly();
+                
                 document.addEventListener('DOMContentLoaded', () => {
                     // Priority 1: Set the hero image immediately for fastest LCP
                     applyHeroBackground();
@@ -611,21 +626,41 @@ const ImgixLoader = (function() {
                 applyHeroBackground();
                 setTimeout(applyImgixToImages, 0);
             }
+            
+            // Additional failsafe for hero image - try again after a short delay
+            setTimeout(updateHeroImageDirectly, 500);
         },
         getUrl: getImgixUrl,
         checkAvailability: checkImgixAvailability,
         getDomain: () => imgixDomain,
-        isAvailable: () => imgixAvailable
+        isAvailable: () => imgixAvailable,
+        updateHero: updateHeroImageDirectly
     };
 })();
 
 // Initialize Imgix - Start immediately for faster performance
 ImgixLoader.init();
 
+// Add additional failsafe to update hero after everything is loaded
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            const computedStyle = getComputedStyle(heroSection);
+            // Check if background image is missing or not properly set
+            if (!computedStyle.backgroundImage.includes('489134129')) {
+                console.log('Fixing hero image after page load');
+                heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${HERO_IMAGE_PATH}')`;
+            }
+        }
+    }, 300);
+});
+
 // Export utils to window
 window.imgixUtils = {
     getImgixUrl: ImgixLoader.getUrl,
     checkImgixAvailability: ImgixLoader.checkAvailability,
     getDomain: ImgixLoader.getDomain,
-    isAvailable: ImgixLoader.isAvailable
+    isAvailable: ImgixLoader.isAvailable,
+    updateHero: ImgixLoader.updateHero
 };
