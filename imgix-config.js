@@ -4,7 +4,7 @@
  */
 
 // Configure Imgix domain
-const imgixDomain = "seqdecks.imgix.net";
+const imgixDomain = "imagesseqdecksandpatios.imgix.net";
 
 // Path to the images directory in the GitHub repository
 const imagesBasePath = ""; // Images are in the root directory
