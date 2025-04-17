@@ -169,9 +169,7 @@ const logoImageParams = {
 // Hero background image parameters
 const heroImageParams = {
     w: 1920,
-    h: 1080,
-    fit: "crop", 
-    crop: "entropy",
+    fit: "max", 
     q: 80,
     auto: "format,compress"
 };
