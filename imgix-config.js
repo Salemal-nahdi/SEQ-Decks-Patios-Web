@@ -191,31 +191,23 @@ const serviceImageParams = {
  * @returns {string} Complete Imgix URL
  */
 function getImgixUrl(imagePath, params = {}) {
-    // If we've checked Imgix and it's not available, return the original path
-    if (imgixChecked && !imgixAvailable) {
-        console.warn(`⚠️ Imgix not available for: ${imagePath}`);
-        return imagePath;
-    }
-    
-    // Default parameters for better performance
-    const defaultParams = {
-        auto: "format,compress",
-        q: 75
+    const baseParams = {
+        auto: 'format,compress',
+        q: 75,
+        fit: 'max',
+        expires: 31536000 // 1 year cache
     };
     
-    // Merge default parameters with custom parameters
-    const allParams = {...defaultParams, ...params};
+    // Merge baseParams with custom params, allowing custom params to override defaults
+    const mergedParams = { ...baseParams, ...params };
     
-    // Build query string
-    const queryString = Object.entries(allParams)
+    const queryString = Object.entries(mergedParams)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
     
-    // Extract just the filename if the path contains a directory structure
-    const filename = imagePath.includes('/') ? imagePath.split('/').pop() : imagePath;
-    
-    // Build the full Imgix URL
-    return `https://${imgixDomain}/${imagesBasePath}${filename}${queryString ? '?' + queryString : ''}`;
+    return isImgixAvailable ? 
+        `https://${imgixDomain}/${imagesBasePath}${imagePath}?${queryString}` : 
+        `images/${imagePath}`;
 }
 
 /**
