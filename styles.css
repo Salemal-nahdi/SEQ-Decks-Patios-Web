@@ -330,6 +330,7 @@ nav ul li a.active:after {
     gap: 40px;
     position: relative;
     z-index: 1;
+    contain: layout style;
 }
 
 .feature {
@@ -342,6 +343,7 @@ nav ul li a.active:after {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    will-change: transform, box-shadow;
 }
 
 .feature::before {
@@ -368,10 +370,17 @@ nav ul li a.active:after {
     font-size: 56px;
     color: var(--primary);
     margin-bottom: 30px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     transition: all 0.4s ease;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .feature i {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent; /* Fallback if -webkit-text-fill-color isn't supported */
+    }
 }
 
 .feature:hover i {
@@ -1419,5 +1428,18 @@ footer::before {
     
     .social-icons {
         justify-content: center;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+        .feature i {
+            /* Use higher contrast gradient for dark mode */
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
     }
 } 

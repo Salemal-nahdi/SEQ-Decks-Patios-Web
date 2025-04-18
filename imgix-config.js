@@ -121,7 +121,11 @@ const ImgixLoader = (function() {
             return Promise.resolve(imgixAvailable);
         }
         
-        console.log('🔍 Testing Imgix availability...');
+        // Only log in development environments
+        const isDev = window.location.hostname.includes('netlify') || 
+                      window.location.hostname === 'localhost';
+        
+        if (isDev) console.log('🔍 Testing Imgix availability...');
         
         // Apply the hero image directly and immediately
         updateHeroImageDirectly();
@@ -138,10 +142,10 @@ const ImgixLoader = (function() {
                 imgixAvailable = true;
                 imgixChecked = true;
                 imgixCheckPromise = null;
-                console.log('✅ Imgix is available and working!');
+                if (isDev) console.log('✅ Imgix is available and working!');
                 
                 // Show status notification in dev environments
-                if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+                if (isDev) {
                     showImgixStatus(true);
                 }
                 
@@ -154,7 +158,7 @@ const ImgixLoader = (function() {
             // Setup error handler
             testImage.onerror = function() {
                 // Try fallback before failing
-                console.warn('⚠️ Primary test image failed, trying fallback...');
+                if (isDev) console.warn('⚠️ Primary test image failed, trying fallback...');
                 
                 const fallbackImage = new Image();
                 
@@ -163,9 +167,9 @@ const ImgixLoader = (function() {
                     imgixAvailable = true;
                     imgixChecked = true;
                     imgixCheckPromise = null;
-                    console.log('✅ Imgix is available and working (via fallback)!');
+                    if (isDev) console.log('✅ Imgix is available and working (via fallback)!');
                     
-                    if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+                    if (isDev) {
                         showImgixStatus(true);
                     }
                     
@@ -180,13 +184,15 @@ const ImgixLoader = (function() {
                     imgixAvailable = false;
                     imgixChecked = true;
                     imgixCheckPromise = null;
-                    console.error('❌ Imgix domain not available. Using fallback image paths.');
+                    if (isDev) console.error('❌ Imgix domain not available. Using fallback image paths.');
                     
                     // Update hero directly again
                     updateHeroImageDirectly();
                     
-                    // Show error notification
-                    showImgixStatus(false);
+                    // Show error notification in dev environments
+                    if (isDev) {
+                        showImgixStatus(false);
+                    }
                     
                     // Process queue with fallback paths
                     processQueue();
@@ -206,13 +212,15 @@ const ImgixLoader = (function() {
                 imgixAvailable = false;
                 imgixChecked = true;
                 imgixCheckPromise = null;
-                console.error('⏱️ Imgix availability check timed out. Using fallback image paths.');
+                if (isDev) console.error('⏱️ Imgix availability check timed out. Using fallback image paths.');
                 
                 // Update hero directly again
                 updateHeroImageDirectly();
                 
-                // Show timeout notification
-                showImgixStatus(false, true);
+                // Show timeout notification in dev environments
+                if (isDev) {
+                    showImgixStatus(false, true);
+                }
                 
                 // Process queue with fallback paths
                 processQueue();
@@ -239,6 +247,12 @@ const ImgixLoader = (function() {
      * Display Imgix status for developers
      */
     function showImgixStatus(available, timeout = false) {
+        // Never show in production environment
+        if (window.location.hostname === 'seqdecksandpatios.com.au' || 
+            window.location.hostname === 'www.seqdecksandpatios.com.au') {
+            return;
+        }
+        
         // Only show in development
         if (!window.location.hostname.includes('netlify') && window.location.hostname !== 'localhost') {
             return;
@@ -332,14 +346,18 @@ const ImgixLoader = (function() {
         
         // Add error handler for fallback
         img.addEventListener('error', function() {
-            // Log the failure
-            console.error(`❌ Failed to load image: ${filename} via Imgix`);
+            // Only log errors in development
+            const isDev = window.location.hostname.includes('netlify') || 
+                        window.location.hostname === 'localhost';
+            
+            // Log the failure in development
+            if (isDev) console.error(`❌ Failed to load image: ${filename} via Imgix`);
             
             // Mark image as failed
             img.classList.add('imgix-load-failed');
             
             // In development, show visual indicator
-            if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+            if (isDev) {
                 // Create error overlay
                 const errorOverlay = document.createElement('div');
                 errorOverlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;' +
@@ -358,7 +376,7 @@ const ImgixLoader = (function() {
             
             // Try original image as fallback
             if (originalSrc) {
-                console.log(`🔄 Trying original image: ${originalSrc}`);
+                if (isDev) console.log(`🔄 Trying original image: ${originalSrc}`);
                 img.src = originalSrc;
             }
         });
@@ -369,7 +387,11 @@ const ImgixLoader = (function() {
      */
     function processQueue() {
         if (pendingImageOperations.length > 0) {
-            console.log(`Processing ${pendingImageOperations.length} pending image operations`);
+            // Only log in development
+            const isDev = window.location.hostname.includes('netlify') || 
+                          window.location.hostname === 'localhost';
+            
+            if (isDev) console.log(`Processing ${pendingImageOperations.length} pending image operations`);
             
             // Process in chunks to avoid blocking
             const processChunk = (startIndex, chunkSize) => {
@@ -379,7 +401,7 @@ const ImgixLoader = (function() {
                     try {
                         pendingImageOperations[i]();
                     } catch (e) {
-                        console.error('Error processing image operation:', e);
+                        if (isDev) console.error('Error processing image operation:', e);
                     }
                 }
                 
@@ -589,7 +611,8 @@ const ImgixLoader = (function() {
             }
             
             // Log stats in development
-            if (window.location.hostname.includes('netlify') || window.location.hostname === 'localhost') {
+            const isDev = window.location.hostname.includes('netlify') || window.location.hostname === 'localhost';
+            if (isDev) {
                 setTimeout(() => {
                     const totalImages = document.querySelectorAll('img').length;
                     const failedImages = document.querySelectorAll('img.imgix-load-failed').length;
@@ -649,7 +672,12 @@ window.addEventListener('load', function() {
             const computedStyle = getComputedStyle(heroSection);
             // Check if background image is missing or not properly set
             if (!computedStyle.backgroundImage.includes('489134129')) {
-                console.log('Fixing hero image after page load');
+                // Only log in development
+                const isDev = window.location.hostname.includes('netlify') || 
+                              window.location.hostname === 'localhost';
+                              
+                if (isDev) console.log('Fixing hero image after page load');
+                
                 heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${HERO_IMAGE_PATH}')`;
             }
         }
